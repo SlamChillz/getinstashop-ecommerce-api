@@ -3,9 +3,10 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/handlers"
+	"github.com/slamchillz/getinstashop-ecommerce-api/pkg/token"
 )
 
-func InitRouters(handler *handlers.AllHandler) *gin.Engine {
+func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
@@ -16,6 +17,9 @@ func InitRouters(handler *handlers.AllHandler) *gin.Engine {
 	// Register authentication routes
 	router.POST("/auth/register", handler.UserHandler.CreateUser)
 	router.POST("/auth/login", handler.UserHandler.LoginUser)
+
+	// Authenticated Endpoints
+	//ApiV1Router := router.Group("/api/v1/").Use(middlewares.AuthMiddy(token))
 
 	return router
 }

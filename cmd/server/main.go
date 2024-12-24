@@ -37,7 +37,7 @@ func (server *Server) setupHandler() *Server {
 
 // Register application routers
 func (server *Server) setupRouter() *Server {
-	server.router = routers.InitRouters(server.handler)
+	server.router = routers.InitRouters(server.handler, server.token)
 	return server
 }
 
