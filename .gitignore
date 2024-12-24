@@ -1,0 +1,52 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Build directories and compiled output
+/bin/
+/build/
+/dist/
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*.swo
+
+# Dependency directories (if using vendoring)
+vendor/
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.iml
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment files
+.env
+.env.*
+
+# Go-related
+*.test           # Test binary files
+coverage.out     # Code coverage reports
+*.cover          # Coverage profile files
+
+# Git hooks
+.githooks/
+
+# Docker
+docker-compose.override.yml
+*.dockerfile
+
+# JetBrains IDE-specific
+/.idea/
+
+# Miscellaneous
+*.bak
