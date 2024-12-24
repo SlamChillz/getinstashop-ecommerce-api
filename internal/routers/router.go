@@ -15,6 +15,7 @@ func InitRouters(handler *handlers.AllHandler) *gin.Engine {
 
 	// Register authentication routes
 	router.POST("/auth/register", handler.UserHandler.CreateUser)
+	router.POST("/auth/login", handler.UserHandler.LoginUser)
 
 	return router
 }

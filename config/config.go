@@ -10,6 +10,7 @@ type Config struct {
 	HTTPServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
 	DatabaseURL       string `mapstructure:"DATABASE_URL"`
 	MigrationURL      string `mapstructure:"MIGRATION_URL"`
+	JwtSecret         string `mapstructure:"JWT_SECRET"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

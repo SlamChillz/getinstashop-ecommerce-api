@@ -7,8 +7,8 @@ import (
 	"regexp"
 )
 
-func RegisterUser(input types.RegisterUserInput) (types.RegisterUserErrMessage, error) {
-	errMessage := types.RegisterUserErrMessage{}
+func ValidateAuthPayload(input types.AuthPayload) (types.AuthPayloadErrMessage, error) {
+	errMessage := types.AuthPayloadErrMessage{}
 	var err error = nil
 	if input.Email == "" {
 		err = utils.ConcatenateErrors(err, errors.New("missing email"))

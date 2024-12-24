@@ -40,3 +40,28 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	)
 	return i, err
 }
+
+const getUserById = `-- name: GetUserById :one
+SELECT id, email, password, admin
+FROM "user"
+WHERE email = $1 LIMIT 1
+`
+
+type GetUserByIdRow struct {
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email"`
+	Password string    `json:"password"`
+	Admin    bool      `json:"admin"`
+}
+
+func (q *Queries) GetUserById(ctx context.Context, email string) (GetUserByIdRow, error) {
+	row := q.db.QueryRow(ctx, getUserById, email)
+	var i GetUserByIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.Admin,
+	)
+	return i, err
+}

@@ -6,11 +6,13 @@ import (
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/handlers"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/routers"
+	"github.com/slamchillz/getinstashop-ecommerce-api/pkg/token"
 )
 
 // Server struct
 type Server struct {
 	config  config.Config
+	token   *token.JWT
 	router  *gin.Engine
 	store   db.Store
 	handler *handlers.AllHandler
@@ -18,14 +20,18 @@ type Server struct {
 
 // NewServer Create a new server instance
 func NewServer(config config.Config, store db.Store) (*Server, error) {
-	server := &Server{config: config, store: store}
+	jwt, err := token.NewJWT(config.JwtSecret)
+	if err != nil {
+		return nil, err
+	}
+	server := &Server{config: config, token: jwt, store: store}
 	server.setupHandler().setupRouter()
 	return server, nil
 }
 
 // Instantiate all handlers
 func (server *Server) setupHandler() *Server {
-	server.handler = handlers.RegisterHandlers(server.store)
+	server.handler = handlers.RegisterHandlers(server.store, server.token)
 	return server
 }
 
