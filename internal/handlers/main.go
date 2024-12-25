@@ -8,6 +8,7 @@ import (
 
 type AllHandler struct {
 	*UserHandler
+	*ProductHandler
 }
 
 type Handler interface {
@@ -17,6 +18,7 @@ type Handler interface {
 
 func RegisterHandlers(store db.Store, jwtToken *token.JWT) *AllHandler {
 	return &AllHandler{
-		UserHandler: NewUserHandler(store, jwtToken),
+		UserHandler:    NewUserHandler(store, jwtToken),
+		ProductHandler: NewProductHandler(store),
 	}
 }

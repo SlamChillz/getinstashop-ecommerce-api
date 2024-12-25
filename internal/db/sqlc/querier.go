@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetUserById(ctx context.Context, email string) (GetUserByIdRow, error)
 }

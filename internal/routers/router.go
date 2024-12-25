@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/handlers"
+	"github.com/slamchillz/getinstashop-ecommerce-api/internal/middlewares"
 	"github.com/slamchillz/getinstashop-ecommerce-api/pkg/token"
 )
 
@@ -19,7 +20,11 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	router.POST("/auth/login", handler.UserHandler.LoginUser)
 
 	// Authenticated Endpoints
-	//ApiV1Router := router.Group("/api/v1/").Use(middlewares.AuthMiddy(token))
+	apiV1Router := router.Group("/api/v1/").Use(middlewares.AuthMiddy(token))
+
+	// Admin routes
+	adminRouter := apiV1Router.Use(middlewares.AdminMiddy)
+	adminRouter.POST("/products", handler.ProductHandler.CreateProduct)
 
 	return router
 }
