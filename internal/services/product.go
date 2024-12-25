@@ -111,3 +111,28 @@ func (s *ProductService) DeleteOneProduct(ctx context.Context, productId uuid.UU
 	}
 	return nil, nil, http.StatusNoContent, nil
 }
+
+func (s *ProductService) UpdateOneProduct(ctx context.Context, productId uuid.UUID, product types.ProductUpdateInput) (*db.Product, *types.ProductErrMessage, int, error) {
+	errMessage, err := validators.ValidateProductUpdateInput(product)
+	if err != nil {
+		return nil, &errMessage, http.StatusBadRequest, err
+	}
+	updatedProduct, execErr, txErr := s.store.UpdateProductTx(ctx, db.UpdateProductTxParams{
+		ID:          productId,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Stock:       product.Stock,
+	})
+	if execErr != nil || txErr != nil {
+		if execErr != nil {
+			if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == execErr.Error() {
+				return nil, &types.ProductErrMessage{
+					ID: "product not found",
+				}, http.StatusNotFound, err
+			}
+		}
+		return nil, nil, http.StatusInternalServerError, err
+	}
+	return &updatedProduct, nil, http.StatusOK, nil
+}

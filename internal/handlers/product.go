@@ -105,3 +105,31 @@ func (h *ProductHandler) DeleteOneProduct(ctx *gin.Context) {
 		"data":    response,
 	})
 }
+
+func (h *ProductHandler) UpdateOneProduct(ctx *gin.Context) {
+	var err error
+	var req types.ProductUpdateInput
+	var productId uuid.UUID = uuid.UUID([]byte(ctx.Param("id")))
+	if err = ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "failed",
+			"message": "Invalid JSON payload",
+		})
+		return
+	}
+	response, errMessage, statusCode, err := h.productService.UpdateOneProduct(ctx, productId, req)
+	if err != nil {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Product not updated",
+			"error":   errMessage,
+		})
+		log.Printf("Error while updating product: %v", err)
+		return
+	}
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"message": "Product updated",
+		"data":    response,
+	})
+}

@@ -22,3 +22,10 @@ type ProductErrMessage struct {
 type CreateProductOutput db.GetAllProductRow
 
 type ProductOutput db.GetAllProductRow
+
+type ProductUpdateInput struct {
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	Price       *float64 `json:"price,omitempty"`
+	Stock       *int32   `json:"stock,omitempty"`
+}

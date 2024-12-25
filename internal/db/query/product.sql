@@ -39,3 +39,13 @@ LIMIT 1;
 -- name: DeleteOneProduct :exec
 DELETE FROM product
 WHERE id = $1;
+
+-- name: UpdateOneProduct :one
+UPDATE product
+SET
+    name = sqlc.arg('name'),
+    description = sqlc.arg('description'),
+    price = sqlc.arg('price'),
+    stock = sqlc.arg('stock')
+WHERE id = sqlc.arg('id')
+RETURNING *;

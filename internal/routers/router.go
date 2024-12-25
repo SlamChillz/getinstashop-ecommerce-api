@@ -32,6 +32,8 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	adminRouter.GET("/products/:id", handler.ProductHandler.GetOneProduct)
 	// Delete a single Product
 	adminRouter.DELETE("/products/:id", handler.ProductHandler.DeleteOneProduct)
+	// Update a Product
+	adminRouter.PUT("/products/:id", handler.ProductHandler.UpdateOneProduct)
 
 	return router
 }

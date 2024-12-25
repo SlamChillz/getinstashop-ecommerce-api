@@ -17,6 +17,7 @@ type Querier interface {
 	GetAllProduct(ctx context.Context) ([]GetAllProductRow, error)
 	GetOneProduct(ctx context.Context, id uuid.UUID) (GetOneProductRow, error)
 	GetUserById(ctx context.Context, email string) (GetUserByIdRow, error)
+	UpdateOneProduct(ctx context.Context, arg UpdateOneProductParams) (Product, error)
 }
 
 var _ Querier = (*Queries)(nil)
