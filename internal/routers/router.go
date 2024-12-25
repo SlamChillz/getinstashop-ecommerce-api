@@ -22,6 +22,9 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	// Authenticated Endpoints
 	apiV1Router := router.Group("/api/v1/").Use(middlewares.AuthMiddy(token))
 
+	// Authenticated User Endpoints
+	apiV1Router.POST("/orders", handler.OrderHandler.CreateOrder)
+
 	// Admin routes
 	adminRouter := apiV1Router.Use(middlewares.AdminMiddy)
 	// Create a product

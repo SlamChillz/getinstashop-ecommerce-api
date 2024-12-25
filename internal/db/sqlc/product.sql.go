@@ -120,6 +120,41 @@ func (q *Queries) GetAllProduct(ctx context.Context) ([]GetAllProductRow, error)
 	return items, nil
 }
 
+const getMultipleProductById = `-- name: GetMultipleProductById :many
+SELECT
+    id,
+    price,
+    stock
+FROM product
+WHERE id = ANY($1::UUID[])
+`
+
+type GetMultipleProductByIdRow struct {
+	ID    uuid.UUID `json:"id"`
+	Price float64   `json:"price"`
+	Stock int32     `json:"stock"`
+}
+
+func (q *Queries) GetMultipleProductById(ctx context.Context, dollar_1 []uuid.UUID) ([]GetMultipleProductByIdRow, error) {
+	rows, err := q.db.Query(ctx, getMultipleProductById, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetMultipleProductByIdRow{}
+	for rows.Next() {
+		var i GetMultipleProductByIdRow
+		if err := rows.Scan(&i.ID, &i.Price, &i.Stock); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOneProduct = `-- name: GetOneProduct :one
 SELECT
     id,
@@ -189,6 +224,35 @@ func (q *Queries) UpdateOneProduct(ctx context.Context, arg UpdateOneProductPara
 		arg.Stock,
 		arg.ID,
 	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.Stock,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CreatedBy,
+	)
+	return i, err
+}
+
+const updateProductStock = `-- name: UpdateProductStock :one
+UPDATE product
+SET
+    stock = stock - $2
+WHERE id = $1
+RETURNING id, name, description, price, stock, "createdAt", "updatedAt", "createdBy"
+`
+
+type UpdateProductStockParams struct {
+	ID    uuid.UUID `json:"id"`
+	Stock int32     `json:"stock"`
+}
+
+func (q *Queries) UpdateProductStock(ctx context.Context, arg UpdateProductStockParams) (Product, error) {
+	row := q.db.QueryRow(ctx, updateProductStock, arg.ID, arg.Stock)
 	var i Product
 	err := row.Scan(
 		&i.ID,

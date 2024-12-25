@@ -49,3 +49,18 @@ SET
     stock = sqlc.arg('stock')
 WHERE id = sqlc.arg('id')
 RETURNING *;
+
+-- name: UpdateProductStock :one
+UPDATE product
+SET
+    stock = stock - $2
+WHERE id = $1
+RETURNING *;
+
+-- name: GetMultipleProductById :many
+SELECT
+    id,
+    price,
+    stock
+FROM product
+WHERE id = ANY($1::UUID[]);

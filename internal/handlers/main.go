@@ -9,6 +9,7 @@ import (
 type AllHandler struct {
 	*UserHandler
 	*ProductHandler
+	*OrderHandler
 }
 
 type Handler interface {
