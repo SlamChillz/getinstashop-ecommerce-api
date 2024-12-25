@@ -59,3 +59,27 @@ func (s *ProductService) CreateProduct(ctx context.Context, product types.Create
 		CreatedBy:   newProduct.CreatedBy,
 	}, nil, http.StatusCreated, nil
 }
+
+func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutput, *types.CreateProductErrMessage, int, error) {
+	allProduct, err := s.store.GetAllProduct(ctx)
+	if err != nil {
+		return nil, nil, http.StatusInternalServerError, err
+	}
+	// Convert GetAllProductRow slice to CreateProductOutput slice
+	var allProductOutput []types.ProductOutput
+	for _, product := range allProduct {
+		productOutput := types.ProductOutput{
+			ID:          product.ID,
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       product.Price,
+			Stock:       product.Stock,
+			CreatedAt:   product.CreatedAt,
+			UpdatedAt:   product.UpdatedAt,
+			CreatedBy:   product.CreatedBy,
+		}
+		allProductOutput = append(allProductOutput, productOutput)
+	}
+	// Return the converted slice along with the status code
+	return allProductOutput, nil, http.StatusOK, nil
+}

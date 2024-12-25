@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	GetAllProduct(ctx context.Context) ([]GetAllProductRow, error)
 	GetUserById(ctx context.Context, email string) (GetUserByIdRow, error)
 }
 

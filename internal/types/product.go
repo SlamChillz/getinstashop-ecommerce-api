@@ -1,8 +1,7 @@
 package types
 
 import (
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
+	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 )
 
 type CreateProductInput struct {
@@ -19,13 +18,6 @@ type CreateProductErrMessage struct {
 	Stock       string `json:"stock,omitempty"`
 }
 
-type CreateProductOutput struct {
-	ID          uuid.UUID        `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Price       float64          `json:"price"`
-	Stock       int32            `json:"stock"`
-	CreatedAt   pgtype.Timestamp `json:"createdAt"`
-	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
-	CreatedBy   uuid.UUID        `json:"createdBy"`
-}
+type CreateProductOutput db.GetAllProductRow
+
+type ProductOutput db.GetAllProductRow

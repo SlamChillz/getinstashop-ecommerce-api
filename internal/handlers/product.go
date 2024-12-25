@@ -45,3 +45,22 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 		"data":    response,
 	})
 }
+
+func (h *ProductHandler) GetAllProduct(ctx *gin.Context) {
+	var err error
+	response, errMessage, statusCode, err := h.productService.GetAllProduct(ctx)
+	if err != nil {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Unable to fetch products",
+			"error":   errMessage,
+		})
+		log.Printf("Error while fetching product: %v", err)
+		return
+	}
+	ctx.JSON(statusCode, gin.H{
+		"status":  "success",
+		"message": "Products retrieved",
+		"data":    response,
+	})
+}

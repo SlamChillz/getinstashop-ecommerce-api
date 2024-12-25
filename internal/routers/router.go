@@ -24,7 +24,10 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 
 	// Admin routes
 	adminRouter := apiV1Router.Use(middlewares.AdminMiddy)
+	// Create a product
 	adminRouter.POST("/products", handler.ProductHandler.CreateProduct)
+	// Fetch all Product
+	adminRouter.GET("/products", handler.ProductHandler.GetAllProduct)
 
 	return router
 }

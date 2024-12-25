@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createProduct = `-- name: CreateProduct :one
@@ -54,4 +55,57 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.CreatedBy,
 	)
 	return i, err
+}
+
+const getAllProduct = `-- name: GetAllProduct :many
+SELECT
+    id,
+    name,
+    description,
+    price,
+    stock,
+    "createdBy",
+    "createdAt",
+    "updatedAt"
+FROM "product"
+`
+
+type GetAllProductRow struct {
+	ID          uuid.UUID        `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Price       float64          `json:"price"`
+	Stock       int32            `json:"stock"`
+	CreatedBy   uuid.UUID        `json:"createdBy"`
+	CreatedAt   pgtype.Timestamp `json:"createdAt"`
+	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
+}
+
+func (q *Queries) GetAllProduct(ctx context.Context) ([]GetAllProductRow, error) {
+	rows, err := q.db.Query(ctx, getAllProduct)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAllProductRow{}
+	for rows.Next() {
+		var i GetAllProductRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.Stock,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
