@@ -28,6 +28,10 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	adminRouter.POST("/products", handler.ProductHandler.CreateProduct)
 	// Fetch all Product
 	adminRouter.GET("/products", handler.ProductHandler.GetAllProduct)
+	// Fetch a single Product
+	adminRouter.GET("/products/:id", handler.ProductHandler.GetOneProduct)
+	// Delete a single Product
+	adminRouter.DELETE("/products/:id", handler.ProductHandler.DeleteOneProduct)
 
 	return router
 }

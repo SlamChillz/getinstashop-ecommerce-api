@@ -11,7 +11,8 @@ type CreateProductInput struct {
 	Stock       int     `json:"stock"`
 }
 
-type CreateProductErrMessage struct {
+type ProductErrMessage struct {
+	ID          string `json:"id,omitempty"`
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Price       string `json:"price,omitempty"`

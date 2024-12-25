@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -11,6 +12,7 @@ import (
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/validators"
 	"math"
 	"net/http"
+	"strings"
 )
 
 // ProductService provides business logic for product operations.
@@ -25,7 +27,7 @@ func NewProductService(store db.Store) *ProductService {
 	}
 }
 
-func (s *ProductService) CreateProduct(ctx context.Context, product types.CreateProductInput) (*types.CreateProductOutput, *types.CreateProductErrMessage, int, error) {
+func (s *ProductService) CreateProduct(ctx context.Context, product types.CreateProductInput) (*types.ProductOutput, *types.ProductErrMessage, int, error) {
 	errMessage, err := validators.ValidateProduct(product)
 	if err != nil {
 		return nil, &errMessage, http.StatusBadRequest, err
@@ -43,14 +45,14 @@ func (s *ProductService) CreateProduct(ctx context.Context, product types.Create
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return nil, &types.CreateProductErrMessage{
+				return nil, &types.ProductErrMessage{
 					Name: "product already exists",
 				}, http.StatusBadRequest, err
 			}
 		}
 		return nil, nil, http.StatusInternalServerError, err
 	}
-	return &types.CreateProductOutput{
+	return &types.ProductOutput{
 		ID:          newProduct.ID,
 		Name:        newProduct.Name,
 		Description: newProduct.Description,
@@ -60,7 +62,7 @@ func (s *ProductService) CreateProduct(ctx context.Context, product types.Create
 	}, nil, http.StatusCreated, nil
 }
 
-func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutput, *types.CreateProductErrMessage, int, error) {
+func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutput, *types.ProductErrMessage, int, error) {
 	allProduct, err := s.store.GetAllProduct(ctx)
 	if err != nil {
 		return nil, nil, http.StatusInternalServerError, err
@@ -82,4 +84,30 @@ func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutp
 	}
 	// Return the converted slice along with the status code
 	return allProductOutput, nil, http.StatusOK, nil
+}
+
+func (s *ProductService) GetOneProduct(ctx context.Context, productId uuid.UUID) (*types.ProductOutput, *types.ProductErrMessage, int, error) {
+	product, err := s.store.GetOneProduct(ctx, productId)
+	if err != nil {
+		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
+			return nil, &types.ProductErrMessage{
+				ID: "product not found",
+			}, http.StatusNotFound, err
+		}
+		return nil, nil, http.StatusInternalServerError, err
+	}
+	return (*types.ProductOutput)(&product), nil, http.StatusOK, nil
+}
+
+func (s *ProductService) DeleteOneProduct(ctx context.Context, productId uuid.UUID) (*types.ProductOutput, *types.ProductErrMessage, int, error) {
+	err := s.store.DeleteOneProduct(ctx, productId)
+	if err != nil {
+		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
+			return nil, &types.ProductErrMessage{
+				ID: "product not found",
+			}, http.StatusNotFound, err
+		}
+		return nil, nil, http.StatusInternalServerError, err
+	}
+	return nil, nil, http.StatusNoContent, nil
 }

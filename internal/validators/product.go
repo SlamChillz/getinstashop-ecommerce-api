@@ -44,8 +44,8 @@ func ValidateStock(stock int) string {
 }
 
 // ValidateProduct validates the CreateProductInput struct
-func ValidateProduct(product types.CreateProductInput) (types.CreateProductErrMessage, error) {
-	errMessage := types.CreateProductErrMessage{
+func ValidateProduct(product types.CreateProductInput) (types.ProductErrMessage, error) {
+	errMessage := types.ProductErrMessage{
 		Name:        ValidateName(product.Name),
 		Description: ValidateDescription(product.Description),
 		Price:       ValidatePrice(product.Price),

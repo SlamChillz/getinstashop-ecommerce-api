@@ -57,6 +57,16 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 	return i, err
 }
 
+const deleteOneProduct = `-- name: DeleteOneProduct :exec
+DELETE FROM product
+WHERE id = $1
+`
+
+func (q *Queries) DeleteOneProduct(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteOneProduct, id)
+	return err
+}
+
 const getAllProduct = `-- name: GetAllProduct :many
 SELECT
     id,
@@ -108,4 +118,46 @@ func (q *Queries) GetAllProduct(ctx context.Context) ([]GetAllProductRow, error)
 		return nil, err
 	}
 	return items, nil
+}
+
+const getOneProduct = `-- name: GetOneProduct :one
+SELECT
+    id,
+    name,
+    description,
+    price,
+    stock,
+    "createdBy",
+    "createdAt",
+    "updatedAt"
+FROM "product"
+WHERE id = $1
+LIMIT 1
+`
+
+type GetOneProductRow struct {
+	ID          uuid.UUID        `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Price       float64          `json:"price"`
+	Stock       int32            `json:"stock"`
+	CreatedBy   uuid.UUID        `json:"createdBy"`
+	CreatedAt   pgtype.Timestamp `json:"createdAt"`
+	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
+}
+
+func (q *Queries) GetOneProduct(ctx context.Context, id uuid.UUID) (GetOneProductRow, error) {
+	row := q.db.QueryRow(ctx, getOneProduct, id)
+	var i GetOneProductRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.Stock,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

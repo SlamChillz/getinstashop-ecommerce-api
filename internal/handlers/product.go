@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/services"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/types"
@@ -61,6 +62,46 @@ func (h *ProductHandler) GetAllProduct(ctx *gin.Context) {
 	ctx.JSON(statusCode, gin.H{
 		"status":  "success",
 		"message": "Products retrieved",
+		"data":    response,
+	})
+}
+
+func (h *ProductHandler) GetOneProduct(ctx *gin.Context) {
+	var err error
+	var productId uuid.UUID = uuid.UUID([]byte(ctx.Param("id")))
+	response, errMessage, statusCode, err := h.productService.GetOneProduct(ctx, productId)
+	if err != nil {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Unable to fetch product",
+			"error":   errMessage,
+		})
+		log.Printf("Error while fetching product: %v", err)
+		return
+	}
+	ctx.JSON(statusCode, gin.H{
+		"status":  "success",
+		"message": "Product retrieved",
+		"data":    response,
+	})
+}
+
+func (h *ProductHandler) DeleteOneProduct(ctx *gin.Context) {
+	var err error
+	var productId uuid.UUID = uuid.UUID([]byte(ctx.Param("id")))
+	response, errMessage, statusCode, err := h.productService.DeleteOneProduct(ctx, productId)
+	if err != nil {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Unable to delete product",
+			"error":   errMessage,
+		})
+		log.Printf("Error while deleting product: %v", err)
+		return
+	}
+	ctx.JSON(statusCode, gin.H{
+		"status":  "success",
+		"message": "Product deleted",
 		"data":    response,
 	})
 }
