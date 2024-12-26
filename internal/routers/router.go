@@ -14,33 +14,32 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 
 	// Health check
 	router.GET("/health", handlers.Health)
-
-	// Register authentication routes
-	router.POST("/auth/register", handler.UserHandler.CreateUser)
-	router.POST("/auth/login", handler.UserHandler.LoginUser)
-
-	// Authenticated Endpoints
-	apiV1Router := router.Group("/api/v1/").Use(middlewares.AuthMiddy(token))
-
-	// Authenticated User Endpoints
-	apiV1Router.POST("/orders", handler.OrderHandler.CreateOrder)
-	apiV1Router.GET("/orders", handler.OrderHandler.GetUserOrders)
-	apiV1Router.PATCH("/orders/:id", handler.OrderHandler.CancelOrder)
-
-	// Admin routes
-	adminRouter := apiV1Router.Use(middlewares.AdminMiddy)
-	// Create a product
-	adminRouter.POST("/admin/products", handler.ProductHandler.CreateProduct)
-	// Fetch all Product
-	adminRouter.GET("/admin/products", handler.ProductHandler.GetAllProduct)
-	// Fetch a single Product
-	adminRouter.GET("/admin/products/:id", handler.ProductHandler.GetOneProduct)
-	// Delete a single Product
-	adminRouter.DELETE("/admin/products/:id", handler.ProductHandler.DeleteOneProduct)
-	// Update a Product
-	adminRouter.PUT("/admin/products/:id", handler.ProductHandler.UpdateOneProduct)
-	// Update Order status
-	adminRouter.PATCH("/admin/orders/:id", handler.OrderHandler.UpdateOrderStatus)
-
+	v1 := router.Group("/api/v1")
+	{
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/register", handler.UserHandler.CreateUser)
+			auth.POST("/login", handler.UserHandler.LoginUser)
+		}
+		v1.Use(middlewares.AuthMiddy(token))
+		// Orders routes
+		orders := v1.Group("/orders")
+		{
+			orders.POST("", handler.CreateOrder)
+			orders.GET("", handler.GetUserOrders)
+			orders.PATCH("/:id", handler.CancelOrder)
+		}
+		// Admin routes
+		admin := v1.Group("/admin")
+		{
+			admin.Use(middlewares.AdminMiddy)
+			admin.POST("/products", handler.CreateProduct)
+			admin.GET("/products", handler.GetAllProduct)
+			admin.GET("/products/:id", handler.GetOneProduct)
+			admin.DELETE("/products/:id", handler.DeleteOneProduct)
+			admin.PUT("/products/:id", handler.UpdateOneProduct)
+			admin.PATCH("/orders/:id", handler.OrderHandler.UpdateOrderStatus)
+		}
+	}
 	return router
 }
