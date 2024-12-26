@@ -40,7 +40,7 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 		log.Printf("Error while creating product: %v", err)
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{
+	ctx.JSON(statusCode, gin.H{
 		"status":  "success",
 		"message": "Product created",
 		"data":    response,

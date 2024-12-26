@@ -11,6 +11,33 @@ import (
 	"github.com/google/uuid"
 )
 
+const cancelOrder = `-- name: CancelOrder :one
+UPDATE "order"
+SET
+    status = 'CANCELLED'
+WHERE id = $1 AND "userId" = $2 AND status = 'PENDING'
+RETURNING id, "userId", total, status, "createdAt", "updatedAt"
+`
+
+type CancelOrderParams struct {
+	ID     uuid.UUID `json:"id"`
+	UserId uuid.UUID `json:"userId"`
+}
+
+func (q *Queries) CancelOrder(ctx context.Context, arg CancelOrderParams) (Order, error) {
+	row := q.db.QueryRow(ctx, cancelOrder, arg.ID, arg.UserId)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserId,
+		&i.Total,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createOrder = `-- name: CreateOrder :one
 INSERT INTO "order" (
     id,
@@ -41,23 +68,36 @@ func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order
 	return i, err
 }
 
-const getAllOrderByUserId = `-- name: GetAllOrderByUserId :one
+const getAllOrderByUserId = `-- name: GetAllOrderByUserId :many
 SELECT id, "userId", total, status, "createdAt", "updatedAt" FROM "order"
 WHERE "userId" = $1
 `
 
-func (q *Queries) GetAllOrderByUserId(ctx context.Context, userid uuid.UUID) (Order, error) {
-	row := q.db.QueryRow(ctx, getAllOrderByUserId, userid)
-	var i Order
-	err := row.Scan(
-		&i.ID,
-		&i.UserId,
-		&i.Total,
-		&i.Status,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetAllOrderByUserId(ctx context.Context, userid uuid.UUID) ([]Order, error) {
+	rows, err := q.db.Query(ctx, getAllOrderByUserId, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Order{}
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserId,
+			&i.Total,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getAllOrderItem = `-- name: GetAllOrderItem :many
@@ -100,6 +140,33 @@ WHERE id = $1
 
 func (q *Queries) GetOrderById(ctx context.Context, id uuid.UUID) (Order, error) {
 	row := q.db.QueryRow(ctx, getOrderById, id)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserId,
+		&i.Total,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateOrderStatus = `-- name: UpdateOrderStatus :one
+UPDATE "order"
+SET
+    status = $1
+WHERE id = $2
+RETURNING id, "userId", total, status, "createdAt", "updatedAt"
+`
+
+type UpdateOrderStatusParams struct {
+	Status OrderStatus `json:"status"`
+	ID     uuid.UUID   `json:"id"`
+}
+
+func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) (Order, error) {
+	row := q.db.QueryRow(ctx, updateOrderStatus, arg.Status, arg.ID)
 	var i Order
 	err := row.Scan(
 		&i.ID,

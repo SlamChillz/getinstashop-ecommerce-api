@@ -24,19 +24,23 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 
 	// Authenticated User Endpoints
 	apiV1Router.POST("/orders", handler.OrderHandler.CreateOrder)
+	apiV1Router.GET("/orders", handler.OrderHandler.GetUserOrders)
+	apiV1Router.PATCH("/orders/:id", handler.OrderHandler.CancelOrder)
 
 	// Admin routes
 	adminRouter := apiV1Router.Use(middlewares.AdminMiddy)
 	// Create a product
-	adminRouter.POST("/products", handler.ProductHandler.CreateProduct)
+	adminRouter.POST("/admin/products", handler.ProductHandler.CreateProduct)
 	// Fetch all Product
-	adminRouter.GET("/products", handler.ProductHandler.GetAllProduct)
+	adminRouter.GET("/admin/products", handler.ProductHandler.GetAllProduct)
 	// Fetch a single Product
-	adminRouter.GET("/products/:id", handler.ProductHandler.GetOneProduct)
+	adminRouter.GET("/admin/products/:id", handler.ProductHandler.GetOneProduct)
 	// Delete a single Product
-	adminRouter.DELETE("/products/:id", handler.ProductHandler.DeleteOneProduct)
+	adminRouter.DELETE("/admin/products/:id", handler.ProductHandler.DeleteOneProduct)
 	// Update a Product
-	adminRouter.PUT("/products/:id", handler.ProductHandler.UpdateOneProduct)
+	adminRouter.PUT("/admin/products/:id", handler.ProductHandler.UpdateOneProduct)
+	// Update Order status
+	adminRouter.PATCH("/admin/orders/:id", handler.OrderHandler.UpdateOrderStatus)
 
 	return router
 }

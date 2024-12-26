@@ -2,12 +2,14 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"github.com/google/uuid"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/constants"
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/types"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/utils"
 	"net/http"
+	"strings"
 )
 
 // OrderService provides business logic for order operations.
@@ -46,6 +48,45 @@ func (s *OrderService) CreateOrder(ctx context.Context, orderReq types.CreateOrd
 	}
 	if execErr != nil || txErr != nil {
 		return nil, nil, http.StatusInternalServerError, utils.ConcatenateErrors(execErr, txErr)
+	}
+	return &order, nil, http.StatusOK, nil
+}
+
+func (s *OrderService) GetUserOrders(ctx context.Context) ([]db.Order, int, error) {
+	userId, _ := ctx.Value(constants.ContextUserIdKey).(uuid.UUID)
+	userOrders, err := s.store.GetAllOrderByUserId(ctx, userId)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+	return userOrders, http.StatusOK, nil
+}
+
+func (s *OrderService) CancelOrder(ctx context.Context, orderId uuid.UUID) (*db.Order, *types.OrderErrMessage, int, error) {
+	userId, _ := ctx.Value(constants.ContextUserIdKey).(uuid.UUID)
+	order, err := s.store.CancelOrder(ctx, db.CancelOrderParams{
+		ID:     orderId,
+		UserId: userId,
+	})
+	if err != nil {
+		return nil, &types.OrderErrMessage{
+			ID: "order not found or has already been canceled",
+		}, http.StatusBadRequest, nil
+	}
+	return &order, nil, http.StatusOK, nil
+}
+
+func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderId uuid.UUID, payload types.UpdateOrderStatusInput) (*db.Order, *types.OrderErrMessage, int, error) {
+	order, err := s.store.UpdateOrderStatus(ctx, db.UpdateOrderStatusParams{
+		ID:     orderId,
+		Status: payload.Status,
+	})
+	if err != nil {
+		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
+			return nil, &types.OrderErrMessage{
+				ID: "order does not exist",
+			}, http.StatusBadRequest, err
+		}
+		return nil, nil, http.StatusInternalServerError, err
 	}
 	return &order, nil, http.StatusOK, nil
 }
