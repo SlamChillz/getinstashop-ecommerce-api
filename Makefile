@@ -50,3 +50,10 @@ migrateup:
 
 migratedown:
 	migrate -path internal/db/migrations -database ${POSTGRESQL_URL} -verbose down
+
+air: docs
+	@air
+
+docs:
+	@rm -rf docs/
+	@swag init --pd

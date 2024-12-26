@@ -23,8 +23,8 @@ func ValidateDescription(description string) string {
 	if description == "" {
 		msg = "description cannot be empty"
 	}
-	if len(description) < 10 || len(description) > 500 {
-		msg = "description must be between 10 and 500 characters"
+	if len(description) < 3 || len(description) > 500 {
+		msg = "description must be between 3 and 500 characters"
 	}
 	return msg
 }

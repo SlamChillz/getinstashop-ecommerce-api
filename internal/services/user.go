@@ -30,16 +30,17 @@ func NewUserService(store db.Store, jwtToken *token.JWT) *UserService {
 }
 
 // CreateUser creates a new user in the database.
-func (s *UserService) CreateUser(ctx context.Context, user types.RegisterUserInput) (*types.RegisterUserOutput, *types.RegisterUserErrMessage, int, error) {
+func (s *UserService) CreateUser(ctx context.Context, user types.RegisterUserInput) (types.RegisterUserOutput, types.RegisterUserErrMessage, int, error) {
 	// Validate user input (e.g., email uniqueness)
+	var newUserOutput types.RegisterUserOutput
 	errMessage, err := validators.ValidateAuthPayload(types.AuthPayload(user))
 	if err != nil {
-		return nil, (*types.RegisterUserErrMessage)(&errMessage), http.StatusBadRequest, err
+		return newUserOutput, errMessage, http.StatusBadRequest, err
 	}
 	// Create the user in the database
 	user.Password, err = utils.HashPassword(user.Password)
 	if err != nil {
-		return nil, nil, http.StatusInternalServerError, err
+		return newUserOutput, errMessage, http.StatusInternalServerError, err
 	}
 	newUser, err := s.store.CreateUser(ctx, db.CreateUserParams{
 		ID:       uuid.New(),
@@ -50,51 +51,49 @@ func (s *UserService) CreateUser(ctx context.Context, user types.RegisterUserInp
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return nil, &types.RegisterUserErrMessage{
-					Email: "email has been taken",
-				}, http.StatusBadRequest, err
+				errMessage.Email = "email already taken"
+				return newUserOutput, errMessage, http.StatusBadRequest, err
 			}
 		}
-		return nil, nil, http.StatusInternalServerError, err
+		return newUserOutput, errMessage, http.StatusInternalServerError, err
 	}
-	var newUserOutput = types.RegisterUserOutput{
+	newUserOutput = types.RegisterUserOutput{
 		ID:        newUser.ID,
 		Email:     newUser.Email,
 		Admin:     newUser.Admin,
-		CreatedAt: newUser.CreatedAt,
-		UpdatedAt: newUser.UpdatedAt,
+		CreatedAt: newUser.CreatedAt.Time,
+		UpdatedAt: newUser.UpdatedAt.Time,
 	}
-	return &newUserOutput, nil, http.StatusCreated, nil
+	return newUserOutput, errMessage, http.StatusCreated, nil
 }
 
 // LoginUser validates user credentials and returns a valid token for subsequent requests
-func (s *UserService) LoginUser(ctx context.Context, user types.LoginUserInput) (*types.LoginUserOutput, *types.LoginUserErrMessage, int, error) {
+func (s *UserService) LoginUser(ctx context.Context, user types.LoginUserInput) (types.LoginUserOutput, types.RegisterUserErrMessage, int, error) {
 	// Validate user input (e.g., email uniqueness)
+	var output types.LoginUserOutput
 	errMessage, err := validators.ValidateAuthPayload(types.AuthPayload(user))
 	if err != nil {
-		return nil, (*types.LoginUserErrMessage)(&errMessage), http.StatusBadRequest, err
+		return output, errMessage, http.StatusBadRequest, err
 	}
 	dbUser, err := s.store.GetUserById(ctx, user.Email)
 	if err != nil {
 		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
-			return nil, &types.LoginUserErrMessage{
-				Email: "email does not exist",
-			}, http.StatusNotFound, err
+			errMessage.Email = "email does not exist"
+			return output, errMessage, http.StatusNotFound, err
 		}
-		return nil, nil, http.StatusInternalServerError, err
+		return output, errMessage, http.StatusInternalServerError, err
 	}
 	err = utils.CheckPassword(dbUser.Password, user.Password)
 	if err != nil {
-		return nil, &types.LoginUserErrMessage{
-			Password: "invalid password",
-		}, http.StatusBadRequest, err
+		errMessage.Password = "invalid password"
+		return output, errMessage, http.StatusBadRequest, err
 	}
 	accessToken, err := s.jwtToken.CreateToken(dbUser.ID, dbUser.Admin)
 	if err != nil {
-		return nil, nil, http.StatusInternalServerError, err
+		return output, errMessage, http.StatusInternalServerError, err
 	}
-	var output = types.LoginUserOutput{
+	output = types.LoginUserOutput{
 		Token: accessToken,
 	}
-	return &output, nil, http.StatusOK, nil
+	return output, errMessage, http.StatusOK, nil
 }

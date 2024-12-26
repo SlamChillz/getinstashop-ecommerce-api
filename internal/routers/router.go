@@ -5,6 +5,8 @@ import (
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/handlers"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/middlewares"
 	"github.com/slamchillz/getinstashop-ecommerce-api/pkg/token"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
@@ -13,6 +15,7 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	router.Use(gin.Recovery())
 
 	// Health check
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/health", handlers.Health)
 	v1 := router.Group("/api/v1")
 	{
@@ -41,5 +44,6 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 			admin.PATCH("/orders/:id", handler.OrderHandler.UpdateOrderStatus)
 		}
 	}
+	//v1.GET("/docs", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
 }

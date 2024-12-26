@@ -1,0 +1,555 @@
+basePath: /api/v1
+definitions:
+  types.CreateOrderInput:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/types.Item'
+        type: array
+    type: object
+  types.CreateProductInput:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+    type: object
+  types.CreateUserError:
+    properties:
+      error:
+        $ref: '#/definitions/types.RegisterUserErrMessage'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.CreateUserOk:
+    properties:
+      data:
+        $ref: '#/definitions/types.RegisterUserOutput'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.InterServerError:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.Item:
+    properties:
+      productId:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  types.ItemError:
+    properties:
+      errorMessage:
+        type: string
+      productId:
+        type: string
+    type: object
+  types.LoginUserError:
+    properties:
+      error:
+        $ref: '#/definitions/types.RegisterUserErrMessage'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.LoginUserInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  types.LoginUserOutput:
+    properties:
+      token:
+        type: string
+    type: object
+  types.Order:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/types.OrderStatus'
+      total:
+        type: number
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  types.OrderCancelError:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.OrderError:
+    properties:
+      error:
+        items:
+          $ref: '#/definitions/types.ItemError'
+        type: array
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.OrderStatus:
+    enum:
+    - PENDING
+    - COMPLETED
+    - CANCELLED
+    type: string
+    x-enum-varnames:
+    - OrderStatusPENDING
+    - OrderStatusCOMPLETED
+    - OrderStatusCANCELLED
+  types.Product:
+    properties:
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  types.ProductErrMessage:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: string
+      stock:
+        type: string
+    type: object
+  types.ProductError:
+    properties:
+      error:
+        $ref: '#/definitions/types.ProductErrMessage'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  types.RegisterUserErrMessage:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  types.RegisterUserInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  types.RegisterUserOutput:
+    properties:
+      admin:
+        type: boolean
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This InstaShop e-commerce technical assessment REST API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "3.0"
+paths:
+  /admin/orders/{orderId}:
+    patch:
+      consumes:
+      - application/json
+      description: Updates the status of any order
+      parameters:
+      - description: Unique uuid of the order whose status is to be updated
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.OrderCancelError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BasicAuth: []
+      summary: Updates the status of any order
+      tags:
+      - admin
+  /admin/products:
+    get:
+      consumes:
+      - application/json
+      description: List all products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.Product'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ProductError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BearerAuth: []
+      summary: List all products
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      description: Create a new product
+      parameters:
+      - description: Create Product request body
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateProductInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ProductError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+      tags:
+      - product
+  /admin/products/{productId}:
+    delete:
+      consumes:
+      - application/json
+      description: Fetch One Product
+      parameters:
+      - description: Unique product id
+        in: path
+        name: productId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ProductError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BearerAuth: []
+      summary: Fetch One Product
+      tags:
+      - product
+    get:
+      consumes:
+      - application/json
+      description: Fetch One Product
+      parameters:
+      - description: Unique product id
+        in: path
+        name: productId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ProductError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BearerAuth: []
+      summary: Fetch One Product
+      tags:
+      - product
+    put:
+      consumes:
+      - application/json
+      description: Update a single Product
+      parameters:
+      - description: Unique product id
+        in: path
+        name: productId
+        required: true
+        type: string
+      - description: Update Product request body
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateProductInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ProductError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BearerAuth: []
+      summary: Update a single Product
+      tags:
+      - product
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Give a valid user an access token
+      parameters:
+      - description: Login request body
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/types.LoginUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.LoginUserOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.LoginUserError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/types.LoginUserError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      summary: Authenticate a user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Register request body
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/types.RegisterUserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.CreateUserOk'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.CreateUserError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      summary: Create a new user
+      tags:
+      - auth
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Fetch all orders placed by a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.Order'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.OrderError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BasicAuth: []
+      summary: Fetch all orders placed by a user
+      tags:
+      - order
+    post:
+      consumes:
+      - application/json
+      description: Place an order for one or more Product
+      parameters:
+      - description: Create Order request body
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateOrderInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.OrderError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BasicAuth: []
+      summary: Place an order for one or more Product
+      tags:
+      - order
+  /orders/{orderId}:
+    patch:
+      consumes:
+      - application/json
+      description: Cancels an order only if it is in PENDING state
+      parameters:
+      - description: Unique uuid of the order whose status is to be cancelled
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.OrderCancelError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BasicAuth: []
+      summary: Cancels and Order
+      tags:
+      - order
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

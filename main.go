@@ -10,10 +10,35 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/slamchillz/getinstashop-ecommerce-api/cmd/server"
 	"github.com/slamchillz/getinstashop-ecommerce-api/config"
+	_ "github.com/slamchillz/getinstashop-ecommerce-api/docs"
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
+	_ "github.com/swaggo/files"       // swagger embed files
+	_ "github.com/swaggo/gin-swagger" // gin-swagger middleware
 	"log"
 )
 
+// @title           Swagger Example API
+// @version         3.0
+// @description     This InstaShop e-commerce technical assessment REST API server.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in							header
+// @name						Authorization
+// @security BearerAuth
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	serverConfig, err := config.LoadConfig(".")
 	if err != nil {

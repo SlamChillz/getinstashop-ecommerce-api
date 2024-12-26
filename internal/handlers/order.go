@@ -20,6 +20,18 @@ func NewOrderHandler(store db.Store) *OrderHandler {
 	return &OrderHandler{OrderService: services.NewOrderService(store)}
 }
 
+// CreateOrder godoc
+// @Summary      Place an order for one or more Product
+// @Description  Place an order for one or more Product
+// @Tags         order
+// @Accept       json
+// @Produce      json
+// @Param        payload   body	types.CreateOrderInput  true  "Create Order request body"
+// @Success      200  {object}  types.Order
+// @Failure      400  {object}  types.OrderError
+// @Failure      500  {object}  types.InterServerError
+// @Security	 BasicAuth
+// @Router       /orders [post]
 func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 	var err error
 	var req types.CreateOrderInput
@@ -47,6 +59,17 @@ func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 	})
 }
 
+// GetUserOrders godoc
+// @Summary      Fetch all orders placed by a user
+// @Description  Fetch all orders placed by a user
+// @Tags         order
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   types.Order
+// @Failure      400  {object}  types.OrderError
+// @Failure      500  {object}  types.InterServerError
+// @Security	 BasicAuth
+// @Router       /orders [get]
 func (h *OrderHandler) GetUserOrders(ctx *gin.Context) {
 	var err error
 	response, statusCode, err := h.OrderService.GetUserOrders(ctx)
@@ -66,6 +89,18 @@ func (h *OrderHandler) GetUserOrders(ctx *gin.Context) {
 	})
 }
 
+// CancelOrder godoc
+// @Summary      Cancels and Order
+// @Description  Cancels an order only if it is in PENDING state
+// @Tags         order
+// @Accept       json
+// @Produce      json
+// @Param        orderId   path		string  	true  "Unique uuid of the order whose status is to be cancelled"
+// @Success      200  {object}  types.Order
+// @Failure      400  {object}  types.OrderCancelError
+// @Failure      500  {object}  types.InterServerError
+// @Security	 BasicAuth
+// @Router       /orders/{orderId} [patch]
 func (h *OrderHandler) CancelOrder(ctx *gin.Context) {
 	var err error
 	orderId := uuid.UUID([]byte(ctx.Param("id")))
@@ -74,7 +109,7 @@ func (h *OrderHandler) CancelOrder(ctx *gin.Context) {
 		ctx.JSON(statusCode, gin.H{
 			"status":  "failed",
 			"message": "Order not cancelled",
-			"error":   errMessage,
+			"error":   errMessage.ID,
 		})
 		log.Printf("Error while fetching user orders: %v", err)
 		return
@@ -86,6 +121,18 @@ func (h *OrderHandler) CancelOrder(ctx *gin.Context) {
 	})
 }
 
+// UpdateOrderStatus godoc
+// @Summary      Updates the status of any order
+// @Description  Updates the status of any order
+// @Tags         admin
+// @Accept       json
+// @Produce      json
+// @Param        orderId   path		string  	true  "Unique uuid of the order whose status is to be updated"
+// @Success      200  {object}  types.Order
+// @Failure      400  {object}  types.OrderCancelError
+// @Failure      500  {object}  types.InterServerError
+// @Security	 BasicAuth
+// @Router       /admin/orders/{orderId} [patch]
 func (h *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 	var err error
 	var req types.UpdateOrderStatusInput
@@ -102,7 +149,7 @@ func (h *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 		ctx.JSON(statusCode, gin.H{
 			"status":  "failed",
 			"message": "Unable to update order status",
-			"error":   errMessage,
+			"error":   errMessage.ID,
 		})
 		log.Printf("Error while fetching user orders: %v", err)
 		return

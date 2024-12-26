@@ -10,6 +10,7 @@ import (
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/types"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/validators"
+	"log"
 	"math"
 	"net/http"
 	"strings"
@@ -27,10 +28,10 @@ func NewProductService(store db.Store) *ProductService {
 	}
 }
 
-func (s *ProductService) CreateProduct(ctx context.Context, product types.CreateProductInput) (*types.ProductOutput, *types.ProductErrMessage, int, error) {
+func (s *ProductService) CreateProduct(ctx context.Context, product types.CreateProductInput) (types.ProductOutput, types.ProductErrMessage, int, error) {
 	errMessage, err := validators.ValidateProduct(product)
 	if err != nil {
-		return nil, &errMessage, http.StatusBadRequest, err
+		return types.ProductOutput{}, errMessage, http.StatusBadRequest, err
 	}
 	userId, _ := ctx.Value(constants.ContextUserIdKey).(uuid.UUID)
 	newProduct, err := s.store.CreateProduct(ctx, db.CreateProductParams{
@@ -41,31 +42,34 @@ func (s *ProductService) CreateProduct(ctx context.Context, product types.Create
 		Stock:       int32(product.Stock),
 		CreatedBy:   userId,
 	})
+	log.Print(newProduct, userId, err)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return nil, &types.ProductErrMessage{
-					Name: "product already exists",
-				}, http.StatusBadRequest, err
+				errMessage.Name = "product already exists"
+				return types.ProductOutput{}, errMessage, http.StatusBadRequest, err
 			}
 		}
-		return nil, nil, http.StatusInternalServerError, err
+		return types.ProductOutput{}, errMessage, http.StatusInternalServerError, err
 	}
-	return &types.ProductOutput{
+	return types.ProductOutput{
 		ID:          newProduct.ID,
 		Name:        newProduct.Name,
 		Description: newProduct.Description,
 		Price:       newProduct.Price,
 		Stock:       newProduct.Stock,
 		CreatedBy:   newProduct.CreatedBy,
-	}, nil, http.StatusCreated, nil
+		CreatedAt:   newProduct.CreatedAt,
+		UpdatedAt:   newProduct.UpdatedAt,
+	}, errMessage, http.StatusCreated, nil
 }
 
-func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutput, *types.ProductErrMessage, int, error) {
+func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutput, types.ProductErrMessage, int, error) {
+	var errMessage types.ProductErrMessage
 	allProduct, err := s.store.GetAllProduct(ctx)
 	if err != nil {
-		return nil, nil, http.StatusInternalServerError, err
+		return nil, errMessage, http.StatusInternalServerError, err
 	}
 	// Convert GetAllProductRow slice to CreateProductOutput slice
 	var allProductOutput []types.ProductOutput
@@ -83,39 +87,41 @@ func (s *ProductService) GetAllProduct(ctx context.Context) ([]types.ProductOutp
 		allProductOutput = append(allProductOutput, productOutput)
 	}
 	// Return the converted slice along with the status code
-	return allProductOutput, nil, http.StatusOK, nil
+	return allProductOutput, errMessage, http.StatusOK, nil
 }
 
-func (s *ProductService) GetOneProduct(ctx context.Context, productId uuid.UUID) (*types.ProductOutput, *types.ProductErrMessage, int, error) {
+func (s *ProductService) GetOneProduct(ctx context.Context, productId uuid.UUID) (types.ProductOutput, types.ProductErrMessage, int, error) {
+	var errMessage types.ProductErrMessage
 	product, err := s.store.GetOneProduct(ctx, productId)
 	if err != nil {
 		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
-			return nil, &types.ProductErrMessage{
-				ID: "product not found",
-			}, http.StatusNotFound, err
+			errMessage.ID = "product not found"
+			return types.ProductOutput(product), errMessage, http.StatusNotFound, err
 		}
-		return nil, nil, http.StatusInternalServerError, err
+		return types.ProductOutput(product), errMessage, http.StatusInternalServerError, err
 	}
-	return (*types.ProductOutput)(&product), nil, http.StatusOK, nil
+	return types.ProductOutput(product), errMessage, http.StatusOK, nil
 }
 
-func (s *ProductService) DeleteOneProduct(ctx context.Context, productId uuid.UUID) (*types.ProductOutput, *types.ProductErrMessage, int, error) {
+func (s *ProductService) DeleteOneProduct(ctx context.Context, productId uuid.UUID) (types.ProductOutput, types.ProductErrMessage, int, error) {
+	var product types.ProductOutput
+	var errMessage types.ProductErrMessage
 	err := s.store.DeleteOneProduct(ctx, productId)
 	if err != nil {
 		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
-			return nil, &types.ProductErrMessage{
-				ID: "product not found",
-			}, http.StatusNotFound, err
+			errMessage.ID = "product not found"
+			return product, errMessage, http.StatusNotFound, err
 		}
-		return nil, nil, http.StatusInternalServerError, err
+		return product, errMessage, http.StatusInternalServerError, err
 	}
-	return nil, nil, http.StatusNoContent, nil
+	return product, errMessage, http.StatusNoContent, nil
 }
 
-func (s *ProductService) UpdateOneProduct(ctx context.Context, productId uuid.UUID, product types.ProductUpdateInput) (*db.Product, *types.ProductErrMessage, int, error) {
+func (s *ProductService) UpdateOneProduct(ctx context.Context, productId uuid.UUID, product types.ProductUpdateInput) (db.Product, types.ProductErrMessage, int, error) {
+	var updatedProduct db.Product
 	errMessage, err := validators.ValidateProductUpdateInput(product)
 	if err != nil {
-		return nil, &errMessage, http.StatusBadRequest, err
+		return updatedProduct, errMessage, http.StatusBadRequest, err
 	}
 	updatedProduct, execErr, txErr := s.store.UpdateProductTx(ctx, db.UpdateProductTxParams{
 		ID:          productId,
@@ -127,12 +133,12 @@ func (s *ProductService) UpdateOneProduct(ctx context.Context, productId uuid.UU
 	if execErr != nil || txErr != nil {
 		if execErr != nil {
 			if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == execErr.Error() {
-				return nil, &types.ProductErrMessage{
+				return updatedProduct, types.ProductErrMessage{
 					ID: "product not found",
 				}, http.StatusNotFound, err
 			}
 		}
-		return nil, nil, http.StatusInternalServerError, err
+		return updatedProduct, errMessage, http.StatusInternalServerError, err
 	}
-	return &updatedProduct, nil, http.StatusOK, nil
+	return updatedProduct, errMessage, http.StatusOK, nil
 }

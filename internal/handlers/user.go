@@ -20,6 +20,17 @@ func NewUserHandler(store db.Store, jwtToken *token.JWT) *UserHandler {
 	return &UserHandler{userService: services.NewUserService(store, jwtToken)}
 }
 
+// CreateUser godoc
+// @Summary      Create a new user
+// @Description  Register a new user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        payload   body	types.RegisterUserInput  true  "Register request body"
+// @Success      201  {object}  types.CreateUserOk
+// @Failure      400  {object}  types.CreateUserError
+// @Failure      500  {object}  types.InterServerError
+// @Router       /auth/register [post]
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	var err error
 	var req types.RegisterUserInput
@@ -47,6 +58,18 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	})
 }
 
+// LoginUser godoc
+// @Summary      Authenticate a user
+// @Description  Give a valid user an access token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        payload   body	types.LoginUserInput  true  "Login request body"
+// @Success      200  {object}  types.LoginUserOutput
+// @Failure      400  {object}  types.LoginUserError
+// @Failure      404  {object}  types.LoginUserError
+// @Failure      500  {object}  types.InterServerError
+// @Router       /auth/login [post]
 func (h *UserHandler) LoginUser(ctx *gin.Context) {
 	var err error
 	var req types.LoginUserInput
