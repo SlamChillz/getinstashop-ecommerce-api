@@ -1,1 +1,1 @@
-ALTER TABLE "products" DROP CONSTRAINT check_price_positive;
+ALTER TABLE "product" DROP CONSTRAINT check_price_positive;
