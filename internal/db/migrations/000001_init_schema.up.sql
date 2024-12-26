@@ -49,7 +49,7 @@ CREATE TABLE "orderItem" (
 
 CREATE OR REPLACE FUNCTION check_admin() RETURNS TRIGGER AS $$
 BEGIN
-    IF FALSE == (SELECT "admin" FROM "user" WHERE id = NEW."createdBy") THEN
+    IF (SELECT "admin" FROM "user" WHERE id = NEW."createdBy") = FALSE THEN
         RAISE EXCEPTION 'Only an admin can create or update a product';
     END IF;
     RETURN NEW;
