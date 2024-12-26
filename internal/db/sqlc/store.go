@@ -10,6 +10,7 @@ type Store interface {
 	Querier
 	UpdateProductTx(ctx context.Context, arg UpdateProductTxParams) (Product, error, error)
 	CreateOrderTx(ctx context.Context, arg CreateOrderTxParams) (Order, map[string]string, error, error)
+	UpdateOrderTx(ctx context.Context, arg UpdateOrderTxParams) (Order, error)
 }
 
 // SQLStore provides all functions to execute SQL queries and transactions

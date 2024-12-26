@@ -133,6 +133,35 @@ func (q *Queries) GetAllOrderItem(ctx context.Context, orderid uuid.UUID) ([]Ord
 	return items, nil
 }
 
+const getAllProductInOrder = `-- name: GetAllProductInOrder :many
+SELECT "orderItem"."productId", "orderItem"."quantity" FROM "orderItem" WHERE "orderId" = $1
+`
+
+type GetAllProductInOrderRow struct {
+	ProductId uuid.UUID `json:"productId"`
+	Quantity  int32     `json:"quantity"`
+}
+
+func (q *Queries) GetAllProductInOrder(ctx context.Context, orderid uuid.UUID) ([]GetAllProductInOrderRow, error) {
+	rows, err := q.db.Query(ctx, getAllProductInOrder, orderid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAllProductInOrderRow{}
+	for rows.Next() {
+		var i GetAllProductInOrderRow
+		if err := rows.Scan(&i.ProductId, &i.Quantity); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrderById = `-- name: GetOrderById :one
 SELECT id, "userId", total, status, "createdAt", "updatedAt" FROM "order"
 WHERE id = $1

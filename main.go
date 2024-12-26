@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -12,6 +11,7 @@ import (
 	"github.com/slamchillz/getinstashop-ecommerce-api/config"
 	_ "github.com/slamchillz/getinstashop-ecommerce-api/docs"
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
+	"github.com/slamchillz/getinstashop-ecommerce-api/internal/utils"
 	_ "github.com/swaggo/files"       // swagger embed files
 	_ "github.com/swaggo/gin-swagger" // gin-swagger middleware
 	"log"
@@ -50,7 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
-	runDBMigration(serverConfig.MigrationURL, serverConfig.DatabaseURL)
+	runDBMigration(serverConfig.DatabaseURL)
 	store := db.NewStore(connPool)
 	runHTTPServer(serverConfig, store)
 }
@@ -66,9 +66,8 @@ func runHTTPServer(config config.Config, store db.Store) {
 	}
 }
 
-func runDBMigration(migrationUrl, databaseURL string) {
-	fmt.Printf("Running database migration on %s\n", migrationUrl)
-	migration, err := migrate.New(migrationUrl, databaseURL)
+func runDBMigration(databaseURL string) {
+	migration, err := migrate.New(utils.GenerateMigrationFilePath(), databaseURL)
 	if err != nil {
 		log.Fatalf("Error creating migration: %v", err)
 	}

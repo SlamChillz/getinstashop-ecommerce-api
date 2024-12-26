@@ -19,6 +19,7 @@ type Querier interface {
 	GetAllOrderByUserId(ctx context.Context, userid uuid.UUID) ([]Order, error)
 	GetAllOrderItem(ctx context.Context, orderid uuid.UUID) ([]OrderItem, error)
 	GetAllProduct(ctx context.Context) ([]GetAllProductRow, error)
+	GetAllProductInOrder(ctx context.Context, orderid uuid.UUID) ([]GetAllProductInOrderRow, error)
 	GetMultipleProductById(ctx context.Context, dollar_1 []uuid.UUID) ([]GetMultipleProductByIdRow, error)
 	GetOneProduct(ctx context.Context, id uuid.UUID) (GetOneProductRow, error)
 	GetOrderById(ctx context.Context, id uuid.UUID) (Order, error)

@@ -32,12 +32,12 @@ func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 			orders.GET("", handler.GetUserOrders)
 			orders.PATCH("/:id", handler.CancelOrder)
 		}
+		v1.GET("/products", handler.GetAllProduct)
 		// Admin routes
 		admin := v1.Group("/admin")
 		{
 			admin.Use(middlewares.AdminMiddy)
 			admin.POST("/products", handler.CreateProduct)
-			admin.GET("/products", handler.GetAllProduct)
 			admin.GET("/products/:id", handler.GetOneProduct)
 			admin.DELETE("/products/:id", handler.DeleteOneProduct)
 			admin.PUT("/products/:id", handler.UpdateOneProduct)

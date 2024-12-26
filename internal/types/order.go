@@ -33,8 +33,8 @@ type OrderErrMessage struct {
 }
 
 type ItemError struct {
-	ProductId  string `json:"productId"`
-	ErrMessage string `json:"errorMessage"`
+	ProductId string `json:"productId"`
+	Quantity  string `json:"quantity"`
 }
 
 type OrderError struct {

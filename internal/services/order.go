@@ -8,8 +8,16 @@ import (
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/types"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/utils"
+	"log"
 	"net/http"
 	"strings"
+)
+
+var (
+	OrderCancelled = "CANCELLED"
+	OrderCompleted = "COMPLETED"
+	OrderPending   = "PENDING"
+	orderStatus    = map[string]int8{OrderCancelled: 1, OrderPending: 1, OrderCompleted: 1}
 )
 
 // OrderService provides business logic for order operations.
@@ -29,13 +37,20 @@ func (s *OrderService) CreateOrder(ctx context.Context, orderReq types.CreateOrd
 	var items = make(map[uuid.UUID]int32)
 	var order db.Order
 	var errMessage types.OrderErrMessage
+	log.Printf("Items: %+v", items)
 	if len(orderReq.Items) <= 0 {
-		errMessage.Items = map[string]string{"key is productId": "value is quantity"}
+		errMessage.Items = map[string]string{"productId": "must be a valid product id", "quantity": "must be greater than zero"}
 		return db.Order{}, errMessage, http.StatusBadRequest, nil
+	}
+	for _, item := range orderReq.Items {
+		if item.Quantity <= 0 {
+			errMessage.Items = map[string]string{"productId": "must be a product id", "quantity": "must be greater than zero"}
+			return db.Order{}, errMessage, http.StatusBadRequest, nil
+		}
 	}
 	userId, _ := ctx.Value(constants.ContextUserIdKey).(uuid.UUID)
 	for _, item := range orderReq.Items {
-		productId := uuid.UUID([]byte(item.ProductId))
+		productId := utils.ParseStringToUUID(item.ProductId)
 		productIds = append(productIds, productId)
 		items[productId] = item.Quantity
 	}
@@ -67,29 +82,41 @@ func (s *OrderService) GetUserOrders(ctx context.Context) ([]db.Order, int, erro
 func (s *OrderService) CancelOrder(ctx context.Context, orderId uuid.UUID) (db.Order, types.OrderErrMessage, int, error) {
 	var order db.Order
 	var errMessage types.OrderErrMessage
+	log.Printf("Order Id: %v", orderId)
 	userId, _ := ctx.Value(constants.ContextUserIdKey).(uuid.UUID)
-	order, err := s.store.CancelOrder(ctx, db.CancelOrderParams{
+	order, err := s.store.UpdateOrderTx(ctx, db.UpdateOrderTxParams{
 		ID:     orderId,
 		UserId: userId,
+		Admin:  false,
+		Status: db.OrderStatusCANCELLED,
 	})
 	if err != nil {
-		errMessage.ID = "order not found or has already been canceled"
-		return order, errMessage, http.StatusBadRequest, nil
+		errMessage.ID = "order not found or has already been cancelled"
+		return order, errMessage, http.StatusBadRequest, err
 	}
 	return order, errMessage, http.StatusOK, nil
 }
 
-func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderId uuid.UUID, payload types.UpdateOrderStatusInput) (db.Order, types.OrderErrMessage, int, error) {
+func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderId uuid.UUID, status string) (db.Order, types.OrderErrMessage, int, error) {
 	var order db.Order
 	var errMessage types.OrderErrMessage
-	order, err := s.store.UpdateOrderStatus(ctx, db.UpdateOrderStatusParams{
+	status = strings.ToUpper(status)
+	userId, _ := ctx.Value(constants.ContextUserIdKey).(uuid.UUID)
+	if orderStatus[status] != 1 {
+		errMessage.Status = "Unknown order status"
+		return db.Order{}, errMessage, http.StatusBadRequest, nil
+	}
+	order, err := s.store.UpdateOrderTx(ctx, db.UpdateOrderTxParams{
 		ID:     orderId,
-		Status: payload.Status,
+		Status: db.OrderStatus(status),
+		Admin:  true,
+		UserId: userId,
 	})
+	log.Printf("Error: %v", err)
 	if err != nil {
 		if strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) == err.Error() {
-			errMessage.ID = "order not found"
-			return order, errMessage, http.StatusBadRequest, err
+			errMessage.ID = "order id not found"
+			return order, errMessage, http.StatusNotFound, err
 		}
 		return order, errMessage, http.StatusInternalServerError, err
 	}

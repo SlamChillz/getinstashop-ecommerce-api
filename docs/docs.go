@@ -28,10 +28,10 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BasicAuth": []
+                        "BearerAuth": []
                     }
                 ],
-                "description": "Updates the status of any order",
+                "description": "Updates the status of any order. Requires admin privilege",
                 "consumes": [
                     "application/json"
                 ],
@@ -39,9 +39,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "admin"
+                    "order"
                 ],
-                "summary": "Updates the status of any order",
+                "summary": "Updates the status of any order. Requires admin privilege",
                 "parameters": [
                     {
                         "type": "string",
@@ -49,6 +49,15 @@ const docTemplate = `{
                         "name": "orderId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "The new status of the order",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateOrderStatusInput"
+                        }
                     }
                 ],
                 "responses": {
@@ -74,54 +83,13 @@ const docTemplate = `{
             }
         },
         "/admin/products": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "List all products",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "product"
-                ],
-                "summary": "List all products",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/types.Product"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/types.ProductError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/types.InterServerError"
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new product",
+                "description": "Create a new product. Requires admin privilege",
                 "consumes": [
                     "application/json"
                 ],
@@ -131,7 +99,7 @@ const docTemplate = `{
                 "tags": [
                     "product"
                 ],
-                "summary": "Create a new product",
+                "summary": "Create a new product. Requires admin privilege",
                 "parameters": [
                     {
                         "description": "Create Product request body",
@@ -172,7 +140,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Fetch One Product",
+                "description": "Fetch One Product. Requires admin privilege",
                 "consumes": [
                     "application/json"
                 ],
@@ -182,7 +150,7 @@ const docTemplate = `{
                 "tags": [
                     "product"
                 ],
-                "summary": "Fetch One Product",
+                "summary": "Fetch One Product. Requires admin privilege",
                 "parameters": [
                     {
                         "type": "string",
@@ -219,7 +187,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update a single Product",
+                "description": "Update a single Product. Requires admin privilege",
                 "consumes": [
                     "application/json"
                 ],
@@ -229,7 +197,7 @@ const docTemplate = `{
                 "tags": [
                     "product"
                 ],
-                "summary": "Update a single Product",
+                "summary": "Update a single Product. Requires admin privilege",
                 "parameters": [
                     {
                         "type": "string",
@@ -275,7 +243,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Fetch One Product",
+                "description": "Delete One Product. Requires admin privilege",
                 "consumes": [
                     "application/json"
                 ],
@@ -285,7 +253,7 @@ const docTemplate = `{
                 "tags": [
                     "product"
                 ],
-                "summary": "Fetch One Product",
+                "summary": "Delete One Product. Requires admin privilege",
                 "parameters": [
                     {
                         "type": "string",
@@ -316,7 +284,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Give a valid user an access token",
+                "description": "User Login. Generates an access token for a valid user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -326,7 +294,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Authenticate a user",
+                "summary": "User Login. Generates an access token for a valid user.",
                 "parameters": [
                     {
                         "description": "Login request body",
@@ -368,7 +336,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "Register a new user",
+                "description": "New user signup. Register a new user",
                 "consumes": [
                     "application/json"
                 ],
@@ -378,7 +346,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Create a new user",
+                "summary": "New user signup. Create a new user",
                 "parameters": [
                     {
                         "description": "Register request body",
@@ -416,7 +384,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BasicAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Fetch all orders placed by a user",
@@ -457,7 +425,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "BasicAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Place an order for one or more Product",
@@ -508,7 +476,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BasicAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Cancels an order only if it is in PENDING state",
@@ -552,9 +520,65 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/products": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all products. None admin users should be able to see products before placing an order.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "List all products. None admin users should be able to see products before placing an order.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.Product"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.ProductError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.InterServerError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "db.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "COMPLETED",
+                "CANCELLED"
+            ],
+            "x-enum-varnames": [
+                "OrderStatusPENDING",
+                "OrderStatusCOMPLETED",
+                "OrderStatusCANCELLED"
+            ]
+        },
         "types.CreateOrderInput": {
             "type": "object",
             "properties": {
@@ -636,10 +660,10 @@ const docTemplate = `{
         "types.ItemError": {
             "type": "object",
             "properties": {
-                "errorMessage": {
+                "productId": {
                     "type": "string"
                 },
-                "productId": {
+                "quantity": {
                     "type": "string"
                 }
             }
@@ -849,6 +873,14 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "types.UpdateOrderStatusInput": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
                 }
             }
         }

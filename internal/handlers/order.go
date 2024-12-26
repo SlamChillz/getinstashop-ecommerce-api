@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/services"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/types"
+	"github.com/slamchillz/getinstashop-ecommerce-api/internal/utils"
 	"log"
 	"net/http"
 )
@@ -30,7 +30,7 @@ func NewOrderHandler(store db.Store) *OrderHandler {
 // @Success      200  {object}  types.Order
 // @Failure      400  {object}  types.OrderError
 // @Failure      500  {object}  types.InterServerError
-// @Security	 BasicAuth
+// @Security	 BearerAuth
 // @Router       /orders [post]
 func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 	var err error
@@ -43,6 +43,15 @@ func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 		return
 	}
 	response, errMessage, statusCode, err := h.OrderService.CreateOrder(ctx, req)
+	if errMessage.Items != nil {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Order not created",
+			"error":   errMessage.Items,
+		})
+		log.Printf("Error while creating Order: %v", err)
+		return
+	}
 	if err != nil {
 		ctx.JSON(statusCode, gin.H{
 			"status":  "failed",
@@ -68,7 +77,7 @@ func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 // @Success      200  {array}   types.Order
 // @Failure      400  {object}  types.OrderError
 // @Failure      500  {object}  types.InterServerError
-// @Security	 BasicAuth
+// @Security	 BearerAuth
 // @Router       /orders [get]
 func (h *OrderHandler) GetUserOrders(ctx *gin.Context) {
 	var err error
@@ -99,12 +108,21 @@ func (h *OrderHandler) GetUserOrders(ctx *gin.Context) {
 // @Success      200  {object}  types.Order
 // @Failure      400  {object}  types.OrderCancelError
 // @Failure      500  {object}  types.InterServerError
-// @Security	 BasicAuth
+// @Security	 BearerAuth
 // @Router       /orders/{orderId} [patch]
 func (h *OrderHandler) CancelOrder(ctx *gin.Context) {
 	var err error
-	orderId := uuid.UUID([]byte(ctx.Param("id")))
+	orderId := utils.ParseStringToUUID(ctx.Param("id"))
 	response, errMessage, statusCode, err := h.OrderService.CancelOrder(ctx, orderId)
+	if errMessage.ID != "" {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Order not cancelled",
+			"error":   errMessage.ID,
+		})
+		log.Printf("Error while fetching user orders: %v", err)
+		return
+	}
 	if err != nil {
 		ctx.JSON(statusCode, gin.H{
 			"status":  "failed",
@@ -122,21 +140,23 @@ func (h *OrderHandler) CancelOrder(ctx *gin.Context) {
 }
 
 // UpdateOrderStatus godoc
-// @Summary      Updates the status of any order
-// @Description  Updates the status of any order
-// @Tags         admin
+// @Summary      Updates the status of any order. Requires admin privilege
+// @Description  Updates the status of any order. Requires admin privilege
+// @Tags         order
 // @Accept       json
 // @Produce      json
 // @Param        orderId   path		string  	true  "Unique uuid of the order whose status is to be updated"
+// @Param        payload   body		types.UpdateOrderStatusInput  	true  "The new status of the order"
 // @Success      200  {object}  types.Order
 // @Failure      400  {object}  types.OrderCancelError
+// @Failure      404  {object}  types.OrderCancelError
 // @Failure      500  {object}  types.InterServerError
-// @Security	 BasicAuth
+// @Security	 BearerAuth
 // @Router       /admin/orders/{orderId} [patch]
 func (h *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 	var err error
 	var req types.UpdateOrderStatusInput
-	orderId := uuid.UUID([]byte(ctx.Param("id")))
+	orderId := utils.ParseStringToUUID(ctx.Param("id"))
 	if err = ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"status":  "failed",
@@ -144,14 +164,23 @@ func (h *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 		})
 		return
 	}
-	response, errMessage, statusCode, err := h.OrderService.UpdateOrderStatus(ctx, orderId, req)
+	response, errMessage, statusCode, err := h.OrderService.UpdateOrderStatus(ctx, orderId, string(req.Status))
+	if errMessage.Status != "" {
+		ctx.JSON(statusCode, gin.H{
+			"status":  "failed",
+			"message": "Unable to update order status",
+			"error":   errMessage,
+		})
+		log.Printf("Error while updating order status: %v", err)
+		return
+	}
 	if err != nil {
 		ctx.JSON(statusCode, gin.H{
 			"status":  "failed",
 			"message": "Unable to update order status",
-			"error":   errMessage.ID,
+			"error":   errMessage,
 		})
-		log.Printf("Error while fetching user orders: %v", err)
+		log.Printf("Error while updating order status: %v", err)
 		return
 	}
 	ctx.JSON(statusCode, gin.H{

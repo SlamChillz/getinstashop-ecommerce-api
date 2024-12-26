@@ -1,5 +1,15 @@
 basePath: /api/v1
 definitions:
+  db.OrderStatus:
+    enum:
+    - PENDING
+    - COMPLETED
+    - CANCELLED
+    type: string
+    x-enum-varnames:
+    - OrderStatusPENDING
+    - OrderStatusCOMPLETED
+    - OrderStatusCANCELLED
   types.CreateOrderInput:
     properties:
       items:
@@ -52,9 +62,9 @@ definitions:
     type: object
   types.ItemError:
     properties:
-      errorMessage:
-        type: string
       productId:
+        type: string
+      quantity:
         type: string
     type: object
   types.LoginUserError:
@@ -193,6 +203,11 @@ definitions:
       updatedAt:
         type: string
     type: object
+  types.UpdateOrderStatusInput:
+    properties:
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -214,13 +229,19 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Updates the status of any order
+      description: Updates the status of any order. Requires admin privilege
       parameters:
       - description: Unique uuid of the order whose status is to be updated
         in: path
         name: orderId
         required: true
         type: string
+      - description: The new status of the order
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateOrderStatusInput'
       produces:
       - application/json
       responses:
@@ -237,41 +258,15 @@ paths:
           schema:
             $ref: '#/definitions/types.InterServerError'
       security:
-      - BasicAuth: []
-      summary: Updates the status of any order
-      tags:
-      - admin
-  /admin/products:
-    get:
-      consumes:
-      - application/json
-      description: List all products
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/types.Product'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/types.ProductError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/types.InterServerError'
-      security:
       - BearerAuth: []
-      summary: List all products
+      summary: Updates the status of any order. Requires admin privilege
       tags:
-      - product
+      - order
+  /admin/products:
     post:
       consumes:
       - application/json
-      description: Create a new product
+      description: Create a new product. Requires admin privilege
       parameters:
       - description: Create Product request body
         in: body
@@ -296,14 +291,14 @@ paths:
             $ref: '#/definitions/types.InterServerError'
       security:
       - BearerAuth: []
-      summary: Create a new product
+      summary: Create a new product. Requires admin privilege
       tags:
       - product
   /admin/products/{productId}:
     delete:
       consumes:
       - application/json
-      description: Fetch One Product
+      description: Delete One Product. Requires admin privilege
       parameters:
       - description: Unique product id
         in: path
@@ -325,13 +320,13 @@ paths:
             $ref: '#/definitions/types.InterServerError'
       security:
       - BearerAuth: []
-      summary: Fetch One Product
+      summary: Delete One Product. Requires admin privilege
       tags:
       - product
     get:
       consumes:
       - application/json
-      description: Fetch One Product
+      description: Fetch One Product. Requires admin privilege
       parameters:
       - description: Unique product id
         in: path
@@ -355,13 +350,13 @@ paths:
             $ref: '#/definitions/types.InterServerError'
       security:
       - BearerAuth: []
-      summary: Fetch One Product
+      summary: Fetch One Product. Requires admin privilege
       tags:
       - product
     put:
       consumes:
       - application/json
-      description: Update a single Product
+      description: Update a single Product. Requires admin privilege
       parameters:
       - description: Unique product id
         in: path
@@ -391,14 +386,14 @@ paths:
             $ref: '#/definitions/types.InterServerError'
       security:
       - BearerAuth: []
-      summary: Update a single Product
+      summary: Update a single Product. Requires admin privilege
       tags:
       - product
   /auth/login:
     post:
       consumes:
       - application/json
-      description: Give a valid user an access token
+      description: User Login. Generates an access token for a valid user.
       parameters:
       - description: Login request body
         in: body
@@ -425,14 +420,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/types.InterServerError'
-      summary: Authenticate a user
+      summary: User Login. Generates an access token for a valid user.
       tags:
       - auth
   /auth/register:
     post:
       consumes:
       - application/json
-      description: Register a new user
+      description: New user signup. Register a new user
       parameters:
       - description: Register request body
         in: body
@@ -455,7 +450,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/types.InterServerError'
-      summary: Create a new user
+      summary: New user signup. Create a new user
       tags:
       - auth
   /orders:
@@ -481,7 +476,7 @@ paths:
           schema:
             $ref: '#/definitions/types.InterServerError'
       security:
-      - BasicAuth: []
+      - BearerAuth: []
       summary: Fetch all orders placed by a user
       tags:
       - order
@@ -512,7 +507,7 @@ paths:
           schema:
             $ref: '#/definitions/types.InterServerError'
       security:
-      - BasicAuth: []
+      - BearerAuth: []
       summary: Place an order for one or more Product
       tags:
       - order
@@ -543,10 +538,39 @@ paths:
           schema:
             $ref: '#/definitions/types.InterServerError'
       security:
-      - BasicAuth: []
+      - BearerAuth: []
       summary: Cancels and Order
       tags:
       - order
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: List all products. None admin users should be able to see products
+        before placing an order.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.Product'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.ProductError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.InterServerError'
+      security:
+      - BearerAuth: []
+      summary: List all products. None admin users should be able to see products
+        before placing an order.
+      tags:
+      - product
 securityDefinitions:
   BearerAuth:
     in: header

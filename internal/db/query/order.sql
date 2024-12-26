@@ -32,3 +32,6 @@ SET
     status = sqlc.arg('status')
 WHERE id = sqlc.arg('id')
 RETURNING *;
+
+-- name: GetAllProductInOrder :many
+SELECT "orderItem"."productId", "orderItem"."quantity" FROM "orderItem" WHERE "orderId" = $1;

@@ -21,8 +21,8 @@ func NewUserHandler(store db.Store, jwtToken *token.JWT) *UserHandler {
 }
 
 // CreateUser godoc
-// @Summary      Create a new user
-// @Description  Register a new user
+// @Summary      New user signup. Create a new user
+// @Description  New user signup. Register a new user
 // @Tags         auth
 // @Accept       json
 // @Produce      json
@@ -59,8 +59,8 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 }
 
 // LoginUser godoc
-// @Summary      Authenticate a user
-// @Description  Give a valid user an access token
+// @Summary      User Login. Generates an access token for a valid user.
+// @Description  User Login. Generates an access token for a valid user.
 // @Tags         auth
 // @Accept       json
 // @Produce      json

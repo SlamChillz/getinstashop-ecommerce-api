@@ -33,14 +33,14 @@ func (store *SQLStore) CreateOrderTx(ctx context.Context, arg CreateOrderTxParam
 		if !ok {
 			invalidProducts[product.ID.String()] = "product not found"
 		}
-		if quantity < product.Stock {
+		if quantity > product.Stock {
 			invalidProducts[product.ID.String()] = "quantity less than available stock"
 		}
 		orderQuantities[product.ID] = quantity
 		productPrice := math.Round((product.Price*float64(quantity))*100) / 100
 		// Create a group of placeholders for each record
 		placeholders = append(placeholders, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)",
-			i*7+1, i*7+2, i*7+3, i*7+4, i*7+5))
+			i*5+1, i*5+2, i*5+3, i*5+4, i*5+5))
 		values = append(values, uuid.New(), arg.ID, product.ID, quantity, productPrice)
 		orderTotal += productPrice
 	}
@@ -74,4 +74,55 @@ func (store *SQLStore) CreateOrderTx(ctx context.Context, arg CreateOrderTxParam
 		return nil
 	})
 	return order, invalidProducts, execErr, txErr
+}
+
+type UpdateOrderTxParams struct {
+	ID     uuid.UUID   `json:"id"`
+	UserId uuid.UUID   `json:"userId"`
+	Admin  bool        `json:"admin"`
+	Status OrderStatus `json:"status"`
+}
+
+func (store *SQLStore) UpdateOrderTx(ctx context.Context, arg UpdateOrderTxParams) (Order, error) {
+	if arg.Status != OrderStatusCANCELLED {
+		return store.UpdateOrderStatus(ctx, UpdateOrderStatusParams{
+			ID:     arg.ID,
+			Status: arg.Status,
+		})
+	}
+	products, err := store.GetAllProductInOrder(ctx, arg.ID)
+	if err != nil {
+		return Order{}, err
+	}
+	var order Order
+	execErr, _ := store.execTx(ctx, func(q *Queries) error {
+		for _, product := range products {
+			_, err := q.UpdateProductStock(ctx, UpdateProductStockParams{
+				ID:    product.ProductId,
+				Stock: product.Quantity * -1,
+			})
+			if err != nil {
+				return err
+			}
+		}
+		if !arg.Admin {
+			order, err = q.CancelOrder(ctx, CancelOrderParams{
+				ID:     arg.ID,
+				UserId: arg.UserId,
+			})
+			if err != nil {
+				return err
+			}
+		} else {
+			order, err = q.UpdateOrderStatus(ctx, UpdateOrderStatusParams{
+				ID:     arg.ID,
+				Status: arg.Status,
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return order, execErr
 }
