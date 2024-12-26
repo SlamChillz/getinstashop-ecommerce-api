@@ -11,6 +11,7 @@ import (
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/utils"
 	"github.com/slamchillz/getinstashop-ecommerce-api/internal/validators"
 	"github.com/slamchillz/getinstashop-ecommerce-api/pkg/token"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -83,6 +84,7 @@ func (s *UserService) LoginUser(ctx context.Context, user types.LoginUserInput) 
 		}
 		return output, errMessage, http.StatusInternalServerError, err
 	}
+	log.Printf("%s: %s", dbUser.Password, user.Password)
 	err = utils.CheckPassword(dbUser.Password, user.Password)
 	if err != nil {
 		errMessage.Password = "invalid password"

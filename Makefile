@@ -27,7 +27,7 @@ lint: check-linter
 	$(LINTER) run ./...
 
 test:
-	$(GO) test -v ./...
+	$(GO) test ./tests
 
 clean:
 	rm -rf bin/
@@ -57,3 +57,6 @@ air: docs
 docs:
 	@rm -rf docs/
 	@swag init --pd
+
+mock:
+	@mockgen -package mockdb -destination internal/db/mock/store.go github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc Store

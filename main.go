@@ -40,7 +40,7 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-	serverConfig, err := config.LoadConfig(".")
+	serverConfig, err := config.LoadConfig("")
 	if err != nil {
 		log.Fatalf("Error loading application config: %v", err)
 	}

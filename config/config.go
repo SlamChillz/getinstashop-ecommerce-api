@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
+	"log"
 )
 
 // Config stores all configuration of the application.
@@ -15,8 +17,8 @@ type Config struct {
 
 // LoadConfig reads configuration from file or environment variables.
 func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigFile(".env")
+	log.Printf("Path: %s", path)
+	viper.SetConfigFile(fmt.Sprintf("%s%s", path, ".env"))
 
 	viper.AutomaticEnv()
 
