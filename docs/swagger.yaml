@@ -210,7 +210,7 @@ definitions:
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
-host: getinstashop-ecommerce-api.onrender.com // For remote
+host: https://getinstashop-ecommerce-api.onrender.com
 info:
   contact:
     email: support@swagger.io

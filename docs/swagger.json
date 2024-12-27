@@ -15,7 +15,7 @@
         },
         "version": "3.0"
     },
-    "host": "getinstashop-ecommerce-api.onrender.com // For remote",
+    "host": "https://getinstashop-ecommerce-api.onrender.com",
     "basePath": "/api/v1",
     "paths": {
         "/admin/orders/{orderId}": {

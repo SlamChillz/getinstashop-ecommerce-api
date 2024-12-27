@@ -76,3 +76,17 @@ func AdminMiddy(ctx *gin.Context) {
 	}
 	ctx.Next()
 }
+
+func CorsMiddy() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
+}
