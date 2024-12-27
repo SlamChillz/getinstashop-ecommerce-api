@@ -41,6 +41,14 @@ func (server *Server) setupRouter() *Server {
 	return server
 }
 
+func (server *Server) Router() *gin.Engine {
+	return server.router
+}
+
+func (server *Server) TokenCreator() *token.JWT {
+	return server.token
+}
+
 // Start server on the given address
 func (server *Server) Start() error {
 	return server.router.Run(server.config.HTTPServerAddress)

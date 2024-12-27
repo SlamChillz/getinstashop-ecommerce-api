@@ -10,7 +10,7 @@ endif
 include .env
 export $(shell sed 's/=.*//' .env)
 
-POSTGRESQL_URL="postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST_NAME):$(POSTGRES_HOST_PORT)/$(POSTGRES_DB)?sslmode=disable"
+POSTGRESQL_URL="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST_NAME):$(POSTGRES_HOST_PORT)/$(POSTGRES_DB)?sslmode=disable"
 
 # Targets
 .PHONY: all build run lint test clean
@@ -27,7 +27,7 @@ lint: check-linter
 	$(LINTER) run ./...
 
 test:
-	$(GO) test -v ./...
+	$(GO) test ./tests
 
 clean:
 	rm -rf bin/
@@ -50,3 +50,13 @@ migrateup:
 
 migratedown:
 	migrate -path internal/db/migrations -database ${POSTGRESQL_URL} -verbose down
+
+air: docs
+	@air
+
+docs:
+	@rm -rf docs/
+	@swag init --pd
+
+mock:
+	@mockgen -package mockdb -destination internal/db/mock/store.go github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc Store
