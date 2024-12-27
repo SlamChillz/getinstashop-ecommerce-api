@@ -15,7 +15,7 @@
         },
         "version": "3.0"
     },
-    "host": "localhost:8080",
+    "host": "getinstashop-ecommerce-api.onrender.com // For remote",
     "basePath": "/api/v1",
     "paths": {
         "/admin/orders/{orderId}": {
@@ -860,15 +860,13 @@
                     "type": "boolean"
                 },
                 "createdAt": {
+                    "description": "Password  string    `json:\"password\"`",
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "updatedAt": {

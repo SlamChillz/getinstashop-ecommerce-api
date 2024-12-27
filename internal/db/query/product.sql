@@ -46,14 +46,16 @@ SET
     name = sqlc.arg('name'),
     description = sqlc.arg('description'),
     price = sqlc.arg('price'),
-    stock = sqlc.arg('stock')
+    stock = sqlc.arg('stock'),
+    updated_at = NOW()
 WHERE id = sqlc.arg('id')
 RETURNING *;
 
 -- name: UpdateProductStock :one
 UPDATE product
 SET
-    stock = stock - $2
+    stock = stock - $2,
+    updated_at = NOW()
 WHERE id = $1
 RETURNING *;
 

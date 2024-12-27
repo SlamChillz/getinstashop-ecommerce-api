@@ -14,7 +14,8 @@ import (
 const cancelOrder = `-- name: CancelOrder :one
 UPDATE "order"
 SET
-    status = 'CANCELLED'
+    status = 'CANCELLED',
+    updated_at = NOW()
 WHERE id = $1 AND "userId" = $2 AND status = 'PENDING'
 RETURNING id, "userId", total, status, "createdAt", "updatedAt"
 `
@@ -184,7 +185,8 @@ func (q *Queries) GetOrderById(ctx context.Context, id uuid.UUID) (Order, error)
 const updateOrderStatus = `-- name: UpdateOrderStatus :one
 UPDATE "order"
 SET
-    status = $1
+    status = $1,
+    updated_at = NOW()
 WHERE id = $2
 RETURNING id, "userId", total, status, "createdAt", "updatedAt"
 `

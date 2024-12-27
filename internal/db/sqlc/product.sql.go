@@ -203,7 +203,8 @@ SET
     name = $1,
     description = $2,
     price = $3,
-    stock = $4
+    stock = $4,
+    updated_at = NOW()
 WHERE id = $5
 RETURNING id, name, description, price, stock, "createdAt", "updatedAt", "createdBy"
 `
@@ -241,7 +242,8 @@ func (q *Queries) UpdateOneProduct(ctx context.Context, arg UpdateOneProductPara
 const updateProductStock = `-- name: UpdateProductStock :one
 UPDATE product
 SET
-    stock = stock - $2
+    stock = stock - $2,
+    updated_at = NOW()
 WHERE id = $1
 RETURNING id, name, description, price, stock, "createdAt", "updatedAt", "createdBy"
 `
