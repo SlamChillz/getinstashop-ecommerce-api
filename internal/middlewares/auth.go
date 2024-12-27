@@ -13,7 +13,7 @@ func AuthMiddy(token *token.JWT) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader(constants.AuthenticationHeader)
 		if len(authHeader) <= len(constants.AuthenticationScheme) {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  "error",
 				"message": "Missing auth header",
 				"error":   gin.H{},
@@ -22,7 +22,7 @@ func AuthMiddy(token *token.JWT) gin.HandlerFunc {
 		}
 		authHeaderValues := strings.Fields(authHeader)
 		if len(authHeaderValues) != 2 {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  "error",
 				"message": "Unrecognized auth header format",
 				"error":   gin.H{},
@@ -30,7 +30,7 @@ func AuthMiddy(token *token.JWT) gin.HandlerFunc {
 			return
 		}
 		if strings.ToLower(authHeaderValues[0]) != constants.AuthenticationScheme {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  "error",
 				"message": "Unsupported auth scheme",
 				"error":   gin.H{},
@@ -41,7 +41,7 @@ func AuthMiddy(token *token.JWT) gin.HandlerFunc {
 		user, err := token.VerifyToken(accessToken)
 		if err != nil {
 			log.Printf("Error verifying token: %s", err.Error())
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  "error",
 				"message": "Invalid access token",
 				"error":   gin.H{},

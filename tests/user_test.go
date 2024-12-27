@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	mockdb "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/mock"
 	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
-	"github.com/slamchillz/getinstashop-ecommerce-api/internal/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -167,11 +166,4 @@ func TestLogin(t *testing.T) {
 			tc.response(t, recorder)
 		})
 	}
-}
-
-func randomPassword(t *testing.T) (string, string) {
-	pass := "password123"
-	hashPass, err := utils.HashPassword(pass)
-	require.NoError(t, err)
-	return pass, hashPass
 }
