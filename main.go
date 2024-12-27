@@ -32,8 +32,7 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080 // For local
-// @host      https://getinstashop-ecommerce-api.onrender.com // For remote
+// @host      https://getinstashop-ecommerce-api.onrender.com
 // @BasePath  /api/v1
 
 // @securityDefinitions.apikey BearerAuth
@@ -70,15 +69,21 @@ func main() {
 	store := db.NewStore(connPool)
 	// If both are provided we create an admin user and exit
 	if *email != "" && *password != "" {
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
+		hashPass, err := utils.HashPassword(*password)
+		if err != nil {
+			log.Fatalf("Failed to create Admin user. Error hashing password: %v", err)
+		}
+		_, err = store.CreateAdminUser(ctx, db.CreateAdminUserParams{
 			ID:       uuid.New(),
 			Email:    *email,
-			Password: *password,
+			Password: hashPass,
 		})
 		if err != nil {
-			log.Fatalf("Error creating admin user: %v", err)
+			if err.Error() != `ERROR: duplicate key value violates unique constraint "user_email_key" (SQLSTATE 23505)` {
+				log.Fatalf("Error creating admin user: %v", err)
+			}
 		}
-		log.Printf("Admin user created. Email: %v, Password: %v", user.Email, user.Password)
+		log.Printf("Admin user created. Email: %s.", *email)
 		os.Exit(0)
 	}
 	runHTTPServer(serverConfig, store)

@@ -14,7 +14,7 @@ import (
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
-	sqlc "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
+	db "github.com/slamchillz/getinstashop-ecommerce-api/internal/db/sqlc"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -43,10 +43,10 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // CancelOrder mocks base method.
-func (m *MockStore) CancelOrder(ctx context.Context, arg sqlc.CancelOrderParams) (sqlc.Order, error) {
+func (m *MockStore) CancelOrder(ctx context.Context, arg db.CancelOrderParams) (db.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelOrder", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Order)
+	ret0, _ := ret[0].(db.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,11 +57,26 @@ func (mr *MockStoreMockRecorder) CancelOrder(ctx, arg any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelOrder", reflect.TypeOf((*MockStore)(nil).CancelOrder), ctx, arg)
 }
 
+// CreateAdminUser mocks base method.
+func (m *MockStore) CreateAdminUser(ctx context.Context, arg db.CreateAdminUserParams) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateAdminUser", ctx, arg)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateAdminUser indicates an expected call of CreateAdminUser.
+func (mr *MockStoreMockRecorder) CreateAdminUser(ctx, arg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdminUser", reflect.TypeOf((*MockStore)(nil).CreateAdminUser), ctx, arg)
+}
+
 // CreateOrder mocks base method.
-func (m *MockStore) CreateOrder(ctx context.Context, arg sqlc.CreateOrderParams) (sqlc.Order, error) {
+func (m *MockStore) CreateOrder(ctx context.Context, arg db.CreateOrderParams) (db.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateOrder", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Order)
+	ret0, _ := ret[0].(db.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -73,10 +88,10 @@ func (mr *MockStoreMockRecorder) CreateOrder(ctx, arg any) *gomock.Call {
 }
 
 // CreateOrderTx mocks base method.
-func (m *MockStore) CreateOrderTx(ctx context.Context, arg sqlc.CreateOrderTxParams) (sqlc.Order, map[string]string, error, error) {
+func (m *MockStore) CreateOrderTx(ctx context.Context, arg db.CreateOrderTxParams) (db.Order, map[string]string, error, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateOrderTx", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Order)
+	ret0, _ := ret[0].(db.Order)
 	ret1, _ := ret[1].(map[string]string)
 	ret2, _ := ret[2].(error)
 	ret3, _ := ret[3].(error)
@@ -90,10 +105,10 @@ func (mr *MockStoreMockRecorder) CreateOrderTx(ctx, arg any) *gomock.Call {
 }
 
 // CreateProduct mocks base method.
-func (m *MockStore) CreateProduct(ctx context.Context, arg sqlc.CreateProductParams) (sqlc.Product, error) {
+func (m *MockStore) CreateProduct(ctx context.Context, arg db.CreateProductParams) (db.Product, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateProduct", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Product)
+	ret0, _ := ret[0].(db.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -105,10 +120,10 @@ func (mr *MockStoreMockRecorder) CreateProduct(ctx, arg any) *gomock.Call {
 }
 
 // CreateUser mocks base method.
-func (m *MockStore) CreateUser(ctx context.Context, arg sqlc.CreateUserParams) (sqlc.User, error) {
+func (m *MockStore) CreateUser(ctx context.Context, arg db.CreateUserParams) (db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", ctx, arg)
-	ret0, _ := ret[0].(sqlc.User)
+	ret0, _ := ret[0].(db.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -134,10 +149,10 @@ func (mr *MockStoreMockRecorder) DeleteOneProduct(ctx, id any) *gomock.Call {
 }
 
 // GetAllOrderByUserId mocks base method.
-func (m *MockStore) GetAllOrderByUserId(ctx context.Context, userid uuid.UUID) ([]sqlc.Order, error) {
+func (m *MockStore) GetAllOrderByUserId(ctx context.Context, userid uuid.UUID) ([]db.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllOrderByUserId", ctx, userid)
-	ret0, _ := ret[0].([]sqlc.Order)
+	ret0, _ := ret[0].([]db.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -149,10 +164,10 @@ func (mr *MockStoreMockRecorder) GetAllOrderByUserId(ctx, userid any) *gomock.Ca
 }
 
 // GetAllOrderItem mocks base method.
-func (m *MockStore) GetAllOrderItem(ctx context.Context, orderid uuid.UUID) ([]sqlc.OrderItem, error) {
+func (m *MockStore) GetAllOrderItem(ctx context.Context, orderid uuid.UUID) ([]db.OrderItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllOrderItem", ctx, orderid)
-	ret0, _ := ret[0].([]sqlc.OrderItem)
+	ret0, _ := ret[0].([]db.OrderItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -164,10 +179,10 @@ func (mr *MockStoreMockRecorder) GetAllOrderItem(ctx, orderid any) *gomock.Call 
 }
 
 // GetAllProduct mocks base method.
-func (m *MockStore) GetAllProduct(ctx context.Context) ([]sqlc.GetAllProductRow, error) {
+func (m *MockStore) GetAllProduct(ctx context.Context) ([]db.GetAllProductRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllProduct", ctx)
-	ret0, _ := ret[0].([]sqlc.GetAllProductRow)
+	ret0, _ := ret[0].([]db.GetAllProductRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -179,10 +194,10 @@ func (mr *MockStoreMockRecorder) GetAllProduct(ctx any) *gomock.Call {
 }
 
 // GetAllProductInOrder mocks base method.
-func (m *MockStore) GetAllProductInOrder(ctx context.Context, orderid uuid.UUID) ([]sqlc.GetAllProductInOrderRow, error) {
+func (m *MockStore) GetAllProductInOrder(ctx context.Context, orderid uuid.UUID) ([]db.GetAllProductInOrderRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllProductInOrder", ctx, orderid)
-	ret0, _ := ret[0].([]sqlc.GetAllProductInOrderRow)
+	ret0, _ := ret[0].([]db.GetAllProductInOrderRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -194,10 +209,10 @@ func (mr *MockStoreMockRecorder) GetAllProductInOrder(ctx, orderid any) *gomock.
 }
 
 // GetMultipleProductById mocks base method.
-func (m *MockStore) GetMultipleProductById(ctx context.Context, dollar_1 []uuid.UUID) ([]sqlc.GetMultipleProductByIdRow, error) {
+func (m *MockStore) GetMultipleProductById(ctx context.Context, dollar_1 []uuid.UUID) ([]db.GetMultipleProductByIdRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMultipleProductById", ctx, dollar_1)
-	ret0, _ := ret[0].([]sqlc.GetMultipleProductByIdRow)
+	ret0, _ := ret[0].([]db.GetMultipleProductByIdRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -209,10 +224,10 @@ func (mr *MockStoreMockRecorder) GetMultipleProductById(ctx, dollar_1 any) *gomo
 }
 
 // GetOneProduct mocks base method.
-func (m *MockStore) GetOneProduct(ctx context.Context, id uuid.UUID) (sqlc.GetOneProductRow, error) {
+func (m *MockStore) GetOneProduct(ctx context.Context, id uuid.UUID) (db.GetOneProductRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOneProduct", ctx, id)
-	ret0, _ := ret[0].(sqlc.GetOneProductRow)
+	ret0, _ := ret[0].(db.GetOneProductRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -224,10 +239,10 @@ func (mr *MockStoreMockRecorder) GetOneProduct(ctx, id any) *gomock.Call {
 }
 
 // GetOrderById mocks base method.
-func (m *MockStore) GetOrderById(ctx context.Context, id uuid.UUID) (sqlc.Order, error) {
+func (m *MockStore) GetOrderById(ctx context.Context, id uuid.UUID) (db.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOrderById", ctx, id)
-	ret0, _ := ret[0].(sqlc.Order)
+	ret0, _ := ret[0].(db.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -239,10 +254,10 @@ func (mr *MockStoreMockRecorder) GetOrderById(ctx, id any) *gomock.Call {
 }
 
 // GetUserById mocks base method.
-func (m *MockStore) GetUserById(ctx context.Context, email string) (sqlc.GetUserByIdRow, error) {
+func (m *MockStore) GetUserById(ctx context.Context, email string) (db.GetUserByIdRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserById", ctx, email)
-	ret0, _ := ret[0].(sqlc.GetUserByIdRow)
+	ret0, _ := ret[0].(db.GetUserByIdRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -254,10 +269,10 @@ func (mr *MockStoreMockRecorder) GetUserById(ctx, email any) *gomock.Call {
 }
 
 // UpdateOneProduct mocks base method.
-func (m *MockStore) UpdateOneProduct(ctx context.Context, arg sqlc.UpdateOneProductParams) (sqlc.Product, error) {
+func (m *MockStore) UpdateOneProduct(ctx context.Context, arg db.UpdateOneProductParams) (db.Product, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateOneProduct", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Product)
+	ret0, _ := ret[0].(db.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -269,10 +284,10 @@ func (mr *MockStoreMockRecorder) UpdateOneProduct(ctx, arg any) *gomock.Call {
 }
 
 // UpdateOrderStatus mocks base method.
-func (m *MockStore) UpdateOrderStatus(ctx context.Context, arg sqlc.UpdateOrderStatusParams) (sqlc.Order, error) {
+func (m *MockStore) UpdateOrderStatus(ctx context.Context, arg db.UpdateOrderStatusParams) (db.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Order)
+	ret0, _ := ret[0].(db.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -284,10 +299,10 @@ func (mr *MockStoreMockRecorder) UpdateOrderStatus(ctx, arg any) *gomock.Call {
 }
 
 // UpdateOrderTx mocks base method.
-func (m *MockStore) UpdateOrderTx(ctx context.Context, arg sqlc.UpdateOrderTxParams) (sqlc.Order, error) {
+func (m *MockStore) UpdateOrderTx(ctx context.Context, arg db.UpdateOrderTxParams) (db.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateOrderTx", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Order)
+	ret0, _ := ret[0].(db.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -299,10 +314,10 @@ func (mr *MockStoreMockRecorder) UpdateOrderTx(ctx, arg any) *gomock.Call {
 }
 
 // UpdateProductStock mocks base method.
-func (m *MockStore) UpdateProductStock(ctx context.Context, arg sqlc.UpdateProductStockParams) (sqlc.Product, error) {
+func (m *MockStore) UpdateProductStock(ctx context.Context, arg db.UpdateProductStockParams) (db.Product, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProductStock", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Product)
+	ret0, _ := ret[0].(db.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -314,10 +329,10 @@ func (mr *MockStoreMockRecorder) UpdateProductStock(ctx, arg any) *gomock.Call {
 }
 
 // UpdateProductTx mocks base method.
-func (m *MockStore) UpdateProductTx(ctx context.Context, arg sqlc.UpdateProductTxParams) (sqlc.Product, error, error) {
+func (m *MockStore) UpdateProductTx(ctx context.Context, arg db.UpdateProductTxParams) (db.Product, error, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProductTx", ctx, arg)
-	ret0, _ := ret[0].(sqlc.Product)
+	ret0, _ := ret[0].(db.Product)
 	ret1, _ := ret[1].(error)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

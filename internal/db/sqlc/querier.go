@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	CancelOrder(ctx context.Context, arg CancelOrderParams) (Order, error)
+	CreateAdminUser(ctx context.Context, arg CreateAdminUserParams) (User, error)
 	CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
