@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/slamchillz/getinstashop-ecommerce-api/cmd/server"
 	"github.com/slamchillz/getinstashop-ecommerce-api/config"
@@ -15,6 +17,7 @@ import (
 	_ "github.com/swaggo/files"       // swagger embed files
 	_ "github.com/swaggo/gin-swagger" // gin-swagger middleware
 	"log"
+	"os"
 )
 
 // @title           Swagger Example API
@@ -40,6 +43,18 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+	// Define command line flags for email and password for admin user generation
+	email := flag.String("email", "", "User email address")
+	password := flag.String("password", "", "User password")
+
+	// Parse the flags
+	flag.Parse()
+
+	// Check if both email and password are provided when one of them is
+	if (*email != "" && *password == "") || (*email == "" && *password != "") {
+		log.Fatal("Error: If one of 'email' or 'password' is provided, both must be provided.")
+	}
+
 	serverConfig, err := config.LoadConfig("")
 	if err != nil {
 		log.Fatalf("Error loading application config: %v", err)
@@ -52,6 +67,19 @@ func main() {
 	}
 	runDBMigration(serverConfig.DatabaseURL)
 	store := db.NewStore(connPool)
+	// If both are provided we create an admin user and exit
+	if *email != "" && *password != "" {
+		user, err := store.CreateUser(ctx, db.CreateUserParams{
+			ID:       uuid.New(),
+			Email:    *email,
+			Password: *password,
+		})
+		if err != nil {
+			log.Fatalf("Error creating admin user: %v", err)
+		}
+		log.Printf("Admin user created. Email: %v, Password: %v", user.Email, user.Password)
+		os.Exit(0)
+	}
 	runHTTPServer(serverConfig, store)
 }
 

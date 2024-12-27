@@ -14,5 +14,5 @@ COPY start.sh .
 COPY internal/db/migrations ./internal/db/migrations
 
 EXPOSE 8080 8080
-CMD [ "/app/main" ]
 ENTRYPOINT [ "/app/start.sh" ]
+CMD [ "/app/main" ]
