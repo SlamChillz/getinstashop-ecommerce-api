@@ -73,6 +73,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/types.OrderCancelError"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/types.OrderCancelError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -489,7 +495,7 @@ const docTemplate = `{
                 "tags": [
                     "order"
                 ],
-                "summary": "Cancels and Order",
+                "summary": "Cancels an order only if it is in PENDING state",
                 "parameters": [
                     {
                         "type": "string",

@@ -103,7 +103,7 @@ func (h *OrderHandler) GetUserOrders(ctx *gin.Context) {
 }
 
 // CancelOrder godoc
-// @Summary      Cancels and Order
+// @Summary      Cancels an order only if it is in PENDING state
 // @Description  Cancels an order only if it is in PENDING state
 // @Tags         order
 // @Accept       json
