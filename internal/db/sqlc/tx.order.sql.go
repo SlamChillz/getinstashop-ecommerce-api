@@ -97,9 +97,13 @@ func (store *SQLStore) UpdateOrderTx(ctx context.Context, arg UpdateOrderTxParam
 	var order Order
 	execErr, _ := store.execTx(ctx, func(q *Queries) error {
 		for _, product := range products {
+			stock := product.Quantity * -1
+			if arg.Status == OrderStatusPENDING {
+				stock = product.Quantity
+			}
 			_, err := q.UpdateProductStock(ctx, UpdateProductStockParams{
 				ID:    product.ProductId,
-				Stock: product.Quantity * -1,
+				Stock: stock,
 			})
 			if err != nil {
 				return err
