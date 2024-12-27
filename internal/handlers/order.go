@@ -39,6 +39,10 @@ func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"status":  "failed",
 			"message": "Invalid JSON payload",
+			"error": gin.H{
+				"productId": "must be a valid product id",
+				"quantity":  "must be an integer",
+			},
 		})
 		return
 	}
