@@ -14,6 +14,8 @@ import (
 	"testing"
 )
 
+var testUserId = uuid.New()
+
 func newTestServer(t *testing.T, store db.Store) *server.Server {
 	cfg, err := config.LoadConfig("../")
 	require.NoError(t, err)
@@ -42,3 +44,14 @@ func addAuthorization(
 	authorizationHeader := fmt.Sprintf("%s %s", constants.AuthenticationScheme, jwtToken)
 	request.Header.Set(constants.AuthenticationHeader, authorizationHeader)
 }
+
+//func randomProduct() db.Product {
+//	return db.Product{
+//		ID:          uuid.New(),
+//		Name:        "test",
+//		Description: "test product",
+//		Price:       1000,
+//		Stock:       5,
+//		CreatedBy:   testUserId,
+//	}
+//}
