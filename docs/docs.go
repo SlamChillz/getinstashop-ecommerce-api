@@ -905,9 +905,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "3.0",
-	Host:             "https://getinstashop-ecommerce-api.onrender.com",
+	Host:             "getinstashop-ecommerce-api.onrender.com",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"https", "http"},
 	Title:            "Swagger Example API",
 	Description:      "This InstaShop e-commerce technical assessment REST API server.",
 	InfoInstanceName: "swagger",

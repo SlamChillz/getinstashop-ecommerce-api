@@ -1,4 +1,8 @@
 {
+    "schemes": [
+        "https",
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "This InstaShop e-commerce technical assessment REST API server.",
@@ -15,7 +19,7 @@
         },
         "version": "3.0"
     },
-    "host": "https://getinstashop-ecommerce-api.onrender.com",
+    "host": "getinstashop-ecommerce-api.onrender.com",
     "basePath": "/api/v1",
     "paths": {
         "/admin/orders/{orderId}": {
