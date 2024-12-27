@@ -11,6 +11,37 @@ import (
 	"github.com/google/uuid"
 )
 
+const createAdminUser = `-- name: CreateAdminUser :one
+INSERT INTO "user" (
+    id,
+    email,
+    password,
+    admin
+) VALUES (
+    $1, $2, $3, true
+) RETURNING id, email, password, admin, "createdAt", "updatedAt"
+`
+
+type CreateAdminUserParams struct {
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email"`
+	Password string    `json:"password"`
+}
+
+func (q *Queries) CreateAdminUser(ctx context.Context, arg CreateAdminUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createAdminUser, arg.ID, arg.Email, arg.Password)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.Admin,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO "user" (
     id,

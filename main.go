@@ -32,7 +32,6 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
 // @host      https://getinstashop-ecommerce-api.onrender.com
 // @BasePath  /api/v1
 
@@ -70,10 +69,14 @@ func main() {
 	store := db.NewStore(connPool)
 	// If both are provided we create an admin user and exit
 	if *email != "" && *password != "" {
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
+		hashPass, err := utils.HashPassword(*password)
+		if err != nil {
+			log.Fatalf("Failed to create Admin user. Error hashing password: %v", err)
+		}
+		user, err := store.CreateAdminUser(ctx, db.CreateAdminUserParams{
 			ID:       uuid.New(),
 			Email:    *email,
-			Password: *password,
+			Password: hashPass,
 		})
 		if err != nil {
 			log.Fatalf("Error creating admin user: %v", err)
