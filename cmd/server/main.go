@@ -41,6 +41,10 @@ func (server *Server) setupRouter() *Server {
 	return server
 }
 
+func (server *Server) Router() *gin.Engine {
+	return server.router
+}
+
 // Start server on the given address
 func (server *Server) Start() error {
 	return server.router.Run(server.config.HTTPServerAddress)
