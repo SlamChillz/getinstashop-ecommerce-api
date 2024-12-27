@@ -10,7 +10,7 @@ endif
 include .env
 export $(shell sed 's/=.*//' .env)
 
-POSTGRESQL_URL="postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST_NAME):$(POSTGRES_HOST_PORT)/$(POSTGRES_DB)?sslmode=disable"
+POSTGRESQL_URL="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST_NAME):$(POSTGRES_HOST_PORT)/$(POSTGRES_DB)?sslmode=disable"
 
 # Targets
 .PHONY: all build run lint test clean
