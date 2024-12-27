@@ -11,6 +11,7 @@ import (
 
 func InitRouters(handler *handlers.AllHandler, token *token.JWT) *gin.Engine {
 	router := gin.New()
+	router.Use(middlewares.CorsMiddy())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
