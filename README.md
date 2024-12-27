@@ -9,8 +9,8 @@ Hosted: [Live Docs](https://getinstashop-ecommerce-api.onrender.com/swagger/inde
 Local: http://localhost:8080/swagger/index.html
 
 To successfully test local, kindly make the blow modifications
-- On `line 35` replace `// @host      getinstashop-ecommerce-api.onrender.com` with `// @host      localhost:8080`
-- On `line 38` replace `// @schemes https http` with `// @schemes http https`
+- On `line 35` in [main.go](./main.go) replace `// @host      getinstashop-ecommerce-api.onrender.com` with `// @host      localhost:8080`
+- On `line 38` [main.go](./main.go) replace `// @schemes https http` with `// @schemes http https`
 
 <p align="center">
   <img src="images/doc.png" alt="Centered Image" width="750" height="250"/>
