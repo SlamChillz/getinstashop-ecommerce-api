@@ -21,10 +21,10 @@ type RegisterUserInput struct {
 }
 
 type RegisterUserOutput struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	Admin     bool      `json:"admin"`
-	Password  string    `json:"password"`
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+	Admin bool      `json:"admin"`
+	//Password  string    `json:"password"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
