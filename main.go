@@ -73,15 +73,17 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to create Admin user. Error hashing password: %v", err)
 		}
-		user, err := store.CreateAdminUser(ctx, db.CreateAdminUserParams{
+		_, err = store.CreateAdminUser(ctx, db.CreateAdminUserParams{
 			ID:       uuid.New(),
 			Email:    *email,
 			Password: hashPass,
 		})
 		if err != nil {
-			log.Fatalf("Error creating admin user: %v", err)
+			if err.Error() != `ERROR: duplicate key value violates unique constraint "user_email_key" (SQLSTATE 23505)` {
+				log.Fatalf("Error creating admin user: %v", err)
+			}
 		}
-		log.Printf("Admin user created. Email: %v, Password: %v", user.Email, user.Password)
+		log.Printf("Admin user created. Email: %s.", *email)
 		os.Exit(0)
 	}
 	runHTTPServer(serverConfig, store)
