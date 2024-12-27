@@ -8,7 +8,7 @@ Hosted: [Docs](http://localhost:8080/swagger/index.html)
 
 Local: http://localhost:8080/swagger/index.html
 <p align="center">
-  <img src="images/doc.png" alt="Centered Image" width="500" height="250"/>
+  <img src="images/doc.png" alt="Centered Image" width="750" height="250"/>
 </p>
 
 ## Tools
@@ -31,7 +31,7 @@ The application can be run on both host machine and in a containerised environme
 
 ### Run on Host Machine
 - Ensure the postgres server is running either locally or remotely
-- Run `~$ go mod tidy` to install ans update dependencies
+- Run `~$ go mod tidy` to install and update dependencies
 - Build the application `~$ go build -o bin/server .`
 - Create admin user for test by running: `./bin/server -email="admin@gmail.com" -password="adminpassword"`
 - Start the application  `./bin/server`
@@ -44,7 +44,7 @@ The application can be run on both host machine and in a containerised environme
 
 ## Key Implementations
 - Authenticated users can list all `products`. This allows them to know the which `product` to place order for.
-- When a user cancels an order, the stock of all products in that order is incremented by the quantity that was ordered for. All Writes on the affect rows are locked until the transaction is finished. This prevents partial updates and false product stock from that can result from concurrent writes.
+- When a user cancels an order, the stock of all products in that order is incremented by the quantity that was ordered for. All Writes on the affect rows are locked until the transaction is finished. This prevents partial updates and false product stock that can result from concurrent writes.
 - An order status can be in just one of this states at a time `PENDING`, `CANCELLED`, `COMPLETED`.
 - It is assumed that An admin can change the state an order an any time. Here is what happens to the product stocks when order status changes from:
   - `PENDING` to `CANCLLED`: product stock is incremented by the quantity that was ordered for

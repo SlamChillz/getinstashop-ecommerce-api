@@ -22,14 +22,16 @@ WHERE "orderId" = $1;
 -- name: CancelOrder :one
 UPDATE "order"
 SET
-    status = 'CANCELLED'
+    status = 'CANCELLED',
+    updated_at = NOW()
 WHERE id = $1 AND "userId" = $2 AND status = 'PENDING'
 RETURNING *;
 
 -- name: UpdateOrderStatus :one
 UPDATE "order"
 SET
-    status = sqlc.arg('status')
+    status = sqlc.arg('status'),
+    updated_at = NOW()
 WHERE id = sqlc.arg('id')
 RETURNING *;
 

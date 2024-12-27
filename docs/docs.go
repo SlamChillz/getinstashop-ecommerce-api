@@ -866,15 +866,13 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "createdAt": {
+                    "description": "Password  string    ` + "`" + `json:\"password\"` + "`" + `",
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -907,7 +905,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "3.0",
-	Host:             "localhost:8080",
+	Host:             "getinstashop-ecommerce-api.onrender.com // For remote",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Swagger Example API",
