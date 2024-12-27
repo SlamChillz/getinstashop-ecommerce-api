@@ -4,9 +4,14 @@
 Create a RESTful API for an e-commerce application. This API will handle basic CRUD operations for products and orders, and provide user management and authentication.
 
 ## API Doc
-Hosted: [Docs](http://localhost:8080/swagger/index.html)
+Hosted: [Live Docs](https://getinstashop-ecommerce-api.onrender.com/swagger/index.html)
 
 Local: http://localhost:8080/swagger/index.html
+
+To successfully test local, kindly make the blow modifications
+- On `line 35` replace `// @host      getinstashop-ecommerce-api.onrender.com` with `// @host      localhost:8080`
+- On `line 38` replace `// @schemes https http` with `// @schemes http https`
+
 <p align="center">
   <img src="images/doc.png" alt="Centered Image" width="750" height="250"/>
 </p>
